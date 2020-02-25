@@ -262,7 +262,7 @@ static usb_device_t **usb_get_next_device (io_iterator_t deviceIterator, UInt32 
   io_cf_plugin_ref_t *plugInInterface = NULL;
   usb_device_t **device;
   io_service_t usbDevice;
-  long result, score;
+  SInt32 result, score;
 
   if (!IOIteratorIsValid (deviceIterator) || !(usbDevice = IOIteratorNext(deviceIterator)))
     return NULL;
@@ -462,7 +462,7 @@ static int claim_interface (usb_dev_handle *dev, int interface)
   IOUSBFindInterfaceRequest request;
 
   struct darwin_dev_handle *device;
-  long score;
+  SInt32 score;
   int current_interface;
 
   device = (struct darwin_dev_handle*)dev->impl_info;
@@ -772,6 +772,7 @@ static int ep_to_pipeRef (struct darwin_dev_handle *device, int ep)
   return -1;
 }
 
+#if 0
 /* argument to handle multiple parameters to rw_completed */
 struct rw_complete_arg {
   UInt32        io_size;
@@ -887,6 +888,7 @@ static int usb_bulk_transfer (usb_dev_handle *dev, int ep, char *bytes, int size
 
   return rw_arg.io_size;
 }
+#endif
 
 #if !USE_ASYNC_USB
 
@@ -1176,7 +1178,7 @@ int usb_os_find_devices(struct usb_bus *bus, struct usb_device **devices)
     result = (*(device))->GetDeviceAddress(device, (USBDeviceAddress *)&address);
 
     if (usb_debug >= 2)
-      fprintf(stderr, "usb_os_find_devices: Found USB device at location 0x%08lx\n", location);
+      fprintf(stderr, "usb_os_find_devices: Found USB device at location 0x%08lx\n", (long)location);
 
     /* first byte of location appears to be associated with the device's bus */
     if (location >> 24 == bus_loc >> 24) {
@@ -1205,7 +1207,7 @@ int usb_os_find_devices(struct usb_bus *bus, struct usb_device **devices)
 
       if (usb_debug >= 2)
 	fprintf(stderr, "usb_os_find_devices: Found %s on %s at location 0x%08lx\n",
-		dev->filename, bus->dirname, location);
+		dev->filename, bus->dirname, (long)location);
     }
 
     /* release the device now */

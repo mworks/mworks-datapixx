@@ -35,7 +35,7 @@
 #include <ctype.h>
 
 #include "libdpx.h"		// user API.  Make sure to include libdpx src folder in user include path
-#include "libusb.h"
+//#include "libusb.h"
 
 
 
@@ -215,7 +215,7 @@ int DPxSelectDevice(int devsel)
 int DPxSelectDeviceSubName(int devtype, char* devname)
 {
 	int iDev, devFound = 0;
-	int devIndex;
+	int devIndex = 0;
 	
     if (devtype == DPX_DEVSEL_DPX || devtype == DPX_DEVSEL_VPX || devtype == DPX_DEVSEL_PPC || devtype == DPX_DEVSEL_PPX || devtype == DPX_DEVSEL_DP2 || devtype == DPX_DEVSEL_TPX || devtype == DPX_DEVSEL_TPC || devtype == DPX_DEVSEL_TPB) {
 		dpxUsrDevsel = devtype;
@@ -875,7 +875,7 @@ void TPxBestPolyFinishCalibration()
 	//			coeff_x[1][1], coeff_x[2][1], coeff_x[3][1], coeff_x[4][1], coeff_x[5][1], coeff_x[6][1], coeff_x[7][1], coeff_x[8][1]);
 	TPxSaveCoefficientsInTracker(coeff_x, coeff_y);
 	//TPxGetEyePosition_noCeoff(eyePosition);
-#endif USE_GSL
+#endif
 }
 
 void TPxTestlibtpxFunctions()
@@ -1471,9 +1471,9 @@ void TPxFinishCalibration()
 
 int TPxIsDeviceCalibrated()
 {
-#if USE_GSL
+//#if USE_GSL
 	return IS_DEVICE_CALIBRATED;
-#endif
+//#endif
 }
 /*
 void TPxFinishCalibration_OLD()
@@ -2310,6 +2310,8 @@ int DisableTpxAcquisition(int enable)
 	free(p_ram_buffer);
 
 	return new_address;//Return the new address for next function call
+#else
+	return address;
 #endif
  }
 
@@ -2532,6 +2534,7 @@ int DPxGetDevselCount()
 {
 	int devsel, devselCount;
 	devsel = dpxSysDevsel;
+	devselCount = 0;
 	
 	if (devsel >= DPX_DEVSEL_UNCONFIGURED && devsel < DPX_DEVSEL_UNCONFIGURED + devselCnt[DPX_DEVSEL_CNT_UNCONFIGURED])
 		devselCount = devselCnt[DPX_DEVSEL_CNT_UNCONFIGURED];
@@ -3381,7 +3384,7 @@ int DPxSpiConfig(int writeMode)
 		if (EZWriteEP1Tram((unsigned char*)"^S\x06\x00\x9F\x00\x00\x00\x00\x00", EP1IN_SPI, 6))
 			{ fprintf(stderr,"ERROR: DPxSpiConfig() call to EZWriteEP1Tram() failed\n"); goto fail; }
 
-		printf("\nManufacturer ID          => 0x%hhX%", ep1in_Tram[5]);
+		printf("\nManufacturer ID          => 0x%hhX", ep1in_Tram[5]);
 		
 		if (memcmp(ep1in_Tram+5, "\x20", 1) == 0)
 		{
@@ -6312,7 +6315,7 @@ void DPxBuildUsbMsgPixelSync(int nPixels, unsigned char* pixelData, int timeout)
 	if (DPxIsA10Arch()){
 		if (*sizePtr % 4){
 			*dpxBuildUsbMsgPtr++ = 0;
-			*sizePtr++;
+			sizePtr++;
 		}
 	}
 
@@ -12911,6 +12914,10 @@ void DPxVideoScope(int toFile)
     int vSyncStart, vSync, vSyncMin, vSyncMax, nVSync;
 	char resp[3];
 
+    vertFpStartLine = 0;
+    vertSyncStartLine = 0;
+    vertBpStartLine = 0;
+
     if (!DPxSelectSysDevice(DPX_DEVSEL_PPC_VPX_TPC))
         return;
 
@@ -15101,7 +15108,7 @@ void FX3TransferEP0(unsigned char type, unsigned char opcode, unsigned long addr
 {
     // Caller is responsible for ensuring valid dpxSysDevsel
 #ifdef USE_LIB01
-		usb_control_msg(dpxDeviceTable[dpxSysDevsel].dpxHdl, type, opcode, addr & 0xffff, addr >> 16, (unsigned char*)buf, len, 1000);
+		usb_control_msg(dpxDeviceTable[dpxSysDevsel].dpxHdl, type, opcode, addr & 0xffff, addr >> 16, (char*)buf, len, 1000);
 #else
 		libusb_control_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, type, opcode, addr & 0xffff, addr >> 16, (unsigned char*)buf, len, 1000);
 #endif
