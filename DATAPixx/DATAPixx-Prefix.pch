@@ -1,0 +1,20 @@
+//
+//  DATAPixx-Prefix.pch
+//  DATAPixx
+//
+//  Created by Christopher Stawarz on 2/25/20.
+//  Copyright © 2020 The MWorks Project. All rights reserved.
+//
+
+#ifndef DATAPixx_Prefix_pch
+#define DATAPixx_Prefix_pch
+
+#ifdef __cplusplus
+
+#include <MWorksCore/IODevice.h>
+#include <MWorksCore/Plugin.h>
+#include <MWorksCore/StandardComponentFactory.h>
+
+#endif /* defined(__cplusplus) */
+
+#endif /* DATAPixx_Prefix_pch */
