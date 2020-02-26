@@ -1,0 +1,6 @@
+/* Localized versions of Info.plist keys */
+
+CFBundleName = "i1d3SDK";
+CFBundleShortVersionString = "1.4.0";
+CFBundleGetInfoString = "i1d3SDK version 1.4.0, Copyright (c) 2010-2014 X-Rite Inc.";
+NSHumanReadableCopyright = "Copyright (c) 2010-2014 X-Rite Inc.";

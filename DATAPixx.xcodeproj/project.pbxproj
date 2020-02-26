@@ -34,16 +34,13 @@
 
 /* Begin PBXBuildFile section */
 		E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */; };
-		E1E93D7F2405A933002374D3 /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D6C2405A933002374D3 /* usb.c */; };
-		E1E93D822405A933002374D3 /* darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D722405A933002374D3 /* darwin.c */; };
-		E1E93D842405A933002374D3 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D742405A933002374D3 /* error.c */; };
-		E1E93D852405A933002374D3 /* descriptors.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D762405A933002374D3 /* descriptors.c */; };
-		E1E93D882405A933002374D3 /* libdpx.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D7A2405A933002374D3 /* libdpx.c */; };
+		E11AEA9D2406FE5B00AC3E8B /* libdpx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */; };
+		E11AEAA12406FF4C00AC3E8B /* libdpx.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		E11AEAA42406FFFF00AC3E8B /* i1Pro.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E11AEAA52407000900AC3E8B /* i1d3SDK.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E1E93D932405AB27002374D3 /* DATAPixx.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */; };
 		E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */; };
 		E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */; };
-		E1E93D9F2405B15D002374D3 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93D9E2405B15D002374D3 /* IOKit.framework */; };
-		E1E93DA12405B16F002374D3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93DA02405B16F002374D3 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +61,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		E11AEAA02406FF3E00AC3E8B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E11AEAA42406FFFF00AC3E8B /* i1Pro.framework in CopyFiles */,
+				E11AEAA52407000900AC3E8B /* i1d3SDK.framework in CopyFiles */,
+				E11AEAA12406FF4C00AC3E8B /* libdpx.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1E93D922405AB1D002374D3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -79,26 +88,20 @@
 /* Begin PBXFileReference section */
 		E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDevice.cpp; sourceTree = "<group>"; };
 		E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDevice.hpp; sourceTree = "<group>"; };
+		E11AEA972406FDCB00AC3E8B /* usb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = usb.h; sourceTree = "<group>"; };
+		E11AEA992406FE0B00AC3E8B /* libtpx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libtpx.h; sourceTree = "<group>"; };
+		E11AEA9A2406FE0B00AC3E8B /* libdpx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libdpx.h; sourceTree = "<group>"; };
+		E11AEA9B2406FE0B00AC3E8B /* libdpx_i.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libdpx_i.h; sourceTree = "<group>"; };
+		E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libdpx.dylib; sourceTree = "<group>"; };
+		E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = i1Pro.framework; sourceTree = "<group>"; };
+		E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = i1d3SDK.framework; sourceTree = "<group>"; };
 		E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DATAPixx.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E93D612405A0B6002374D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS_Plugin.xcconfig; sourceTree = "<group>"; };
 		E1E93D692405A561002374D3 /* macOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS.xcconfig; sourceTree = "<group>"; };
-		E1E93D6B2405A933002374D3 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
-		E1E93D6C2405A933002374D3 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
-		E1E93D6E2405A933002374D3 /* usbi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = usbi.h; sourceTree = "<group>"; };
-		E1E93D6F2405A933002374D3 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		E1E93D722405A933002374D3 /* darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = darwin.c; sourceTree = "<group>"; };
-		E1E93D742405A933002374D3 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
-		E1E93D752405A933002374D3 /* usb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = usb.h; sourceTree = "<group>"; };
-		E1E93D762405A933002374D3 /* descriptors.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = descriptors.c; sourceTree = "<group>"; };
-		E1E93D7A2405A933002374D3 /* libdpx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libdpx.c; sourceTree = "<group>"; };
-		E1E93D7C2405A933002374D3 /* libdpx_i.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdpx_i.h; sourceTree = "<group>"; };
-		E1E93D7E2405A933002374D3 /* libdpx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdpx.h; sourceTree = "<group>"; };
 		E1E93D962405AC10002374D3 /* DATAPixx-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DATAPixx-Prefix.pch"; sourceTree = "<group>"; };
 		E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxPlugin.cpp; sourceTree = "<group>"; };
 		E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MWorksCore.framework; path = /Library/Frameworks/MWorksCore.framework; sourceTree = "<absolute>"; };
-		E1E93D9E2405B15D002374D3 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		E1E93DA02405B16F002374D3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,20 +110,40 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */,
-				E1E93DA12405B16F002374D3 /* CoreFoundation.framework in Frameworks */,
-				E1E93D9F2405B15D002374D3 /* IOKit.framework in Frameworks */,
+				E11AEA9D2406FE5B00AC3E8B /* libdpx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E11AEA962406FD9700AC3E8B /* libusb */ = {
+			isa = PBXGroup;
+			children = (
+				E11AEA972406FDCB00AC3E8B /* usb.h */,
+			);
+			path = libusb;
+			sourceTree = "<group>";
+		};
+		E11AEA982406FDDD00AC3E8B /* libdpx */ = {
+			isa = PBXGroup;
+			children = (
+				E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */,
+				E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */,
+				E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */,
+				E11AEA9A2406FE0B00AC3E8B /* libdpx.h */,
+				E11AEA9B2406FE0B00AC3E8B /* libdpx_i.h */,
+				E11AEA992406FE0B00AC3E8B /* libtpx.h */,
+			);
+			path = libdpx;
+			sourceTree = "<group>";
+		};
 		E1E93D552405A0B6002374D3 = {
 			isa = PBXGroup;
 			children = (
 				E1E93D672405A535002374D3 /* External Config */,
-				E1E93D782405A933002374D3 /* libdpx */,
-				E1E93D6A2405A933002374D3 /* libusb */,
+				E11AEA982406FDDD00AC3E8B /* libdpx */,
+				E11AEA962406FD9700AC3E8B /* libusb */,
 				E1E93D602405A0B6002374D3 /* DATAPixx */,
 				E1E93D9B2405AE4D002374D3 /* Frameworks */,
 				E1E93D5F2405A0B6002374D3 /* Products */,
@@ -156,31 +179,6 @@
 			path = "/Library/Application Support/MWorks/Developer/Xcode";
 			sourceTree = "<absolute>";
 		};
-		E1E93D6A2405A933002374D3 /* libusb */ = {
-			isa = PBXGroup;
-			children = (
-				E1E93D6F2405A933002374D3 /* config.h */,
-				E1E93D722405A933002374D3 /* darwin.c */,
-				E1E93D762405A933002374D3 /* descriptors.c */,
-				E1E93D6B2405A933002374D3 /* error.h */,
-				E1E93D742405A933002374D3 /* error.c */,
-				E1E93D752405A933002374D3 /* usb.h */,
-				E1E93D6C2405A933002374D3 /* usb.c */,
-				E1E93D6E2405A933002374D3 /* usbi.h */,
-			);
-			path = libusb;
-			sourceTree = "<group>";
-		};
-		E1E93D782405A933002374D3 /* libdpx */ = {
-			isa = PBXGroup;
-			children = (
-				E1E93D7E2405A933002374D3 /* libdpx.h */,
-				E1E93D7A2405A933002374D3 /* libdpx.c */,
-				E1E93D7C2405A933002374D3 /* libdpx_i.h */,
-			);
-			path = libdpx;
-			sourceTree = "<group>";
-		};
 		E1E93D9A2405AD91002374D3 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -194,8 +192,6 @@
 			isa = PBXGroup;
 			children = (
 				E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */,
-				E1E93DA02405B16F002374D3 /* CoreFoundation.framework */,
-				E1E93D9E2405B15D002374D3 /* IOKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -210,6 +206,7 @@
 				E1E93D5A2405A0B6002374D3 /* Sources */,
 				E1E93D5B2405A0B6002374D3 /* Frameworks */,
 				E1E93D5C2405A0B6002374D3 /* Resources */,
+				E11AEAA02406FF3E00AC3E8B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -275,13 +272,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1E93D852405A933002374D3 /* descriptors.c in Sources */,
 				E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */,
 				E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */,
-				E1E93D842405A933002374D3 /* error.c in Sources */,
-				E1E93D882405A933002374D3 /* libdpx.c in Sources */,
-				E1E93D822405A933002374D3 /* darwin.c in Sources */,
-				E1E93D7F2405A933002374D3 /* usb.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,6 +306,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DATAPixx/DATAPixx-Prefix.pch";
 				INFOPLIST_FILE = DATAPixx/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/libdpx",
+					"$(inherited)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.mworks-project.DATAPixx";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
