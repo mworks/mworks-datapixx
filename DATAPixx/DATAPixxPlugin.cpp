@@ -6,7 +6,7 @@
 //  Copyright © 2020 The MWorks Project. All rights reserved.
 //
 
-//#include "DATAPixxDevice.hpp"
+#include "DATAPixxDevice.hpp"
 
 
 BEGIN_NAMESPACE_MW
@@ -14,7 +14,7 @@ BEGIN_NAMESPACE_MW
 
 class DATAPixxPlugin : public Plugin {
     void registerComponents(boost::shared_ptr<ComponentRegistry> registry) override {
-        //registry->registerFactory<StandardComponentFactory, DATAPixxDevice>();
+        registry->registerFactory<StandardComponentFactory, DATAPixxDevice>();
     }
 };
 

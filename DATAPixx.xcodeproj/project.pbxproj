@@ -33,6 +33,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */; };
 		E1E93D7F2405A933002374D3 /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D6C2405A933002374D3 /* usb.c */; };
 		E1E93D822405A933002374D3 /* darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D722405A933002374D3 /* darwin.c */; };
 		E1E93D842405A933002374D3 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D742405A933002374D3 /* error.c */; };
@@ -76,6 +77,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDevice.cpp; sourceTree = "<group>"; };
+		E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDevice.hpp; sourceTree = "<group>"; };
 		E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DATAPixx.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E93D612405A0B6002374D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS_Plugin.xcconfig; sourceTree = "<group>"; };
@@ -135,6 +138,8 @@
 		E1E93D602405A0B6002374D3 /* DATAPixx */ = {
 			isa = PBXGroup;
 			children = (
+				E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */,
+				E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */,
 				E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */,
 				E1E93D9A2405AD91002374D3 /* Supporting Files */,
 			);
@@ -271,6 +276,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1E93D852405A933002374D3 /* descriptors.c in Sources */,
+				E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */,
 				E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */,
 				E1E93D842405A933002374D3 /* error.c in Sources */,
 				E1E93D882405A933002374D3 /* libdpx.c in Sources */,
