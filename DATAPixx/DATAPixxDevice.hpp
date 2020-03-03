@@ -30,6 +30,7 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    static std::atomic_flag deviceExists;
     
 };
 
