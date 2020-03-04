@@ -38,6 +38,10 @@
 		E11AEAA12406FF4C00AC3E8B /* libdpx.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		E11AEAA42406FFFF00AC3E8B /* i1Pro.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E11AEAA52407000900AC3E8B /* i1d3SDK.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */; };
+		E197C02F2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C02D2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp */; };
+		E197C032241039DA00BA6D8D /* DATAPixxChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C030241039DA00BA6D8D /* DATAPixxChannel.cpp */; };
+		E197C03524103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */; };
 		E1E93D932405AB27002374D3 /* DATAPixx.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */; };
 		E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */; };
 		E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */; };
@@ -95,6 +99,14 @@
 		E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libdpx.dylib; sourceTree = "<group>"; };
 		E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = i1Pro.framework; sourceTree = "<group>"; };
 		E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = i1d3SDK.framework; sourceTree = "<group>"; };
+		E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDigitalOutputChannel.cpp; sourceTree = "<group>"; };
+		E197C02B241037C200BA6D8D /* DATAPixxDigitalOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDigitalOutputChannel.hpp; sourceTree = "<group>"; };
+		E197C02D2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDigitalChannel.cpp; sourceTree = "<group>"; };
+		E197C02E2410387F00BA6D8D /* DATAPixxDigitalChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDigitalChannel.hpp; sourceTree = "<group>"; };
+		E197C030241039DA00BA6D8D /* DATAPixxChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxChannel.cpp; sourceTree = "<group>"; };
+		E197C031241039DA00BA6D8D /* DATAPixxChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxChannel.hpp; sourceTree = "<group>"; };
+		E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxBitOutputChannel.cpp; sourceTree = "<group>"; };
+		E197C03424103C0600BA6D8D /* DATAPixxBitOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxBitOutputChannel.hpp; sourceTree = "<group>"; };
 		E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DATAPixx.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E93D612405A0B6002374D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS_Plugin.xcconfig; sourceTree = "<group>"; };
@@ -138,6 +150,29 @@
 			path = libdpx;
 			sourceTree = "<group>";
 		};
+		E197C028241036DB00BA6D8D /* Channels */ = {
+			isa = PBXGroup;
+			children = (
+				E197C031241039DA00BA6D8D /* DATAPixxChannel.hpp */,
+				E197C030241039DA00BA6D8D /* DATAPixxChannel.cpp */,
+				E197C0292410378E00BA6D8D /* Digital */,
+			);
+			path = Channels;
+			sourceTree = "<group>";
+		};
+		E197C0292410378E00BA6D8D /* Digital */ = {
+			isa = PBXGroup;
+			children = (
+				E197C02E2410387F00BA6D8D /* DATAPixxDigitalChannel.hpp */,
+				E197C02D2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp */,
+				E197C02B241037C200BA6D8D /* DATAPixxDigitalOutputChannel.hpp */,
+				E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */,
+				E197C03424103C0600BA6D8D /* DATAPixxBitOutputChannel.hpp */,
+				E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */,
+			);
+			path = Digital;
+			sourceTree = "<group>";
+		};
 		E1E93D552405A0B6002374D3 = {
 			isa = PBXGroup;
 			children = (
@@ -161,6 +196,7 @@
 		E1E93D602405A0B6002374D3 /* DATAPixx */ = {
 			isa = PBXGroup;
 			children = (
+				E197C028241036DB00BA6D8D /* Channels */,
 				E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */,
 				E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */,
 				E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */,
@@ -273,7 +309,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */,
+				E197C02F2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp in Sources */,
 				E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */,
+				E197C032241039DA00BA6D8D /* DATAPixxChannel.cpp in Sources */,
+				E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */,
+				E197C03524103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

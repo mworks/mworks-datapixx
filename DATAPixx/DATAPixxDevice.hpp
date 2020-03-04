@@ -9,6 +9,8 @@
 #ifndef DATAPixxDevice_hpp
 #define DATAPixxDevice_hpp
 
+#include "DATAPixxDigitalOutputChannel.hpp"
+
 
 BEGIN_NAMESPACE_MW
 
@@ -30,7 +32,20 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    bool haveDigitalOutputs() const { return !(digitalOutputChannels.empty()); }
+    bool configureDigitalOutputs();
+    bool startDigitalOutputs();
+    bool stopDigitalOutputs();
+    
     static std::atomic_flag deviceExists;
+    
+    using lock_guard = std::lock_guard<std::recursive_mutex>;
+    lock_guard::mutex_type mutex;
+    
+    std::vector<boost::shared_ptr<DATAPixxDigitalOutputChannel>> digitalOutputChannels;
+    int digitalOutputBitMask;
+    
+    bool running;
     
 };
 

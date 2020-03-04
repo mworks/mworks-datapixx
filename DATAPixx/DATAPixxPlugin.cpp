@@ -7,6 +7,7 @@
 //
 
 #include "DATAPixxDevice.hpp"
+#include "DATAPixxBitOutputChannel.hpp"
 
 
 BEGIN_NAMESPACE_MW
@@ -15,6 +16,7 @@ BEGIN_NAMESPACE_MW
 class DATAPixxPlugin : public Plugin {
     void registerComponents(boost::shared_ptr<ComponentRegistry> registry) override {
         registry->registerFactory<StandardComponentFactory, DATAPixxDevice>();
+        registry->registerFactory<StandardComponentFactory, DATAPixxBitOutputChannel>();
     }
 };
 
