@@ -52,6 +52,7 @@ END_NAMESPACE()
 
 
 const std::string DATAPixxDevice::UPDATE_INTERVAL("update_interval");
+const std::string DATAPixxDevice::ENABLE_DOUT_DIN_LOOPBACK("enable_dout_din_loopback");
 
 
 void DATAPixxDevice::describeComponent(ComponentInfo &info) {
@@ -60,12 +61,14 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     info.setSignature("iodevice/datapixx");
     
     info.addParameter(UPDATE_INTERVAL, true);
+    info.addParameter(ENABLE_DOUT_DIN_LOOPBACK, "NO");
 }
 
 
 DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     IODevice(parameters),
     updateInterval(parameters[UPDATE_INTERVAL]),
+    enableDigitalLoopback(parameters[ENABLE_DOUT_DIN_LOOPBACK]),
     digitalOutputBitMask(0),
     running(false)
 {
@@ -139,6 +142,9 @@ bool DATAPixxDevice::startDeviceIO() {
         if (haveDigitalOutputs() && !startDigitalOutputs()) {
             return false;
         }
+        if (haveDigitalInputs() && !startDigitalInputs()) {
+            return false;
+        }
         if (logConfigurationFailure()) {
             return false;
         }
@@ -179,6 +185,19 @@ bool DATAPixxDevice::stopDeviceIO() {
 bool DATAPixxDevice::configureDigitalInputs() {
     // Reset all bits to input mode
     if (DPxSetDinDataDir(0), logError("Cannot configure DATAPixx digital inputs")) {
+        return false;
+    }
+    return true;
+}
+
+
+bool DATAPixxDevice::startDigitalInputs() {
+    if (enableDigitalLoopback->getValue().getBool()) {
+        DPxEnableDoutDinLoopback();
+    } else {
+        DPxDisableDoutDinLoopback();
+    }
+    if (logError("Cannot configure DATAPixx digital loopback")) {
         return false;
     }
     return true;
