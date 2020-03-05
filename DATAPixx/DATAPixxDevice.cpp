@@ -51,20 +51,29 @@ int findFirstCommonBit(int mask1, int mask2) {
 END_NAMESPACE()
 
 
+const std::string DATAPixxDevice::UPDATE_INTERVAL("update_interval");
+
+
 void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     IODevice::describeComponent(info);
     
     info.setSignature("iodevice/datapixx");
+    
+    info.addParameter(UPDATE_INTERVAL, true);
 }
 
 
 DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     IODevice(parameters),
+    updateInterval(parameters[UPDATE_INTERVAL]),
     digitalOutputBitMask(0),
     running(false)
 {
     if (deviceExists.test_and_set()) {
         throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Experiment can contain at most one DATAPixx device");
+    }
+    if (updateInterval <= 0) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid update interval");
     }
 }
 
@@ -80,6 +89,10 @@ void DATAPixxDevice::addChild(std::map<std::string, std::string> parameters,
                       ComponentRegistryPtr reg,
                       boost::shared_ptr<Component> child)
 {
+    if (auto channel = boost::dynamic_pointer_cast<DATAPixxDigitalInputChannel>(child)) {
+        digitalInputChannels.push_back(channel);
+        return;
+    }
     if (auto channel = boost::dynamic_pointer_cast<DATAPixxDigitalOutputChannel>(child)) {
         digitalOutputChannels.push_back(channel);
         return;
@@ -103,6 +116,9 @@ bool DATAPixxDevice::initialize() {
         return false;
     }
     
+    if (haveDigitalInputs() && !configureDigitalInputs()) {
+        return false;
+    }
     if (haveDigitalOutputs() && !configureDigitalOutputs()) {
         return false;
     }
@@ -126,6 +142,11 @@ bool DATAPixxDevice::startDeviceIO() {
         if (logConfigurationFailure()) {
             return false;
         }
+        
+        if (haveInputs() && !readInputsTask) {
+            startReadInputsTask();
+        }
+        
         running = true;
     }
     
@@ -137,15 +158,29 @@ bool DATAPixxDevice::stopDeviceIO() {
     lock_guard lock(mutex);
     
     if (running) {
+        if (readInputsTask) {
+            stopReadInputsTask();
+        }
+        
         if (haveDigitalOutputs() && !stopDigitalOutputs()) {
             return false;
         }
         if (logConfigurationFailure()) {
             return false;
         }
+        
         running = false;
     }
     
+    return true;
+}
+
+
+bool DATAPixxDevice::configureDigitalInputs() {
+    // Reset all bits to input mode
+    if (DPxSetDinDataDir(0), logError("Cannot configure DATAPixx digital inputs")) {
+        return false;
+    }
     return true;
 }
 
@@ -208,6 +243,55 @@ bool DATAPixxDevice::stopDigitalOutputs() {
         return false;
     }
     return true;
+}
+
+
+void DATAPixxDevice::startReadInputsTask() {
+    boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
+    auto action = [weakThis]() {
+        if (auto sharedThis = weakThis.lock()) {
+            lock_guard lock(sharedThis->mutex);
+            sharedThis->readInputs();
+        }
+        return nullptr;
+    };
+    readInputsTask = Scheduler::instance()->scheduleUS(FILELINE,
+                                                       updateInterval,
+                                                       updateInterval,
+                                                       M_REPEAT_INDEFINITELY,
+                                                       action,
+                                                       M_DEFAULT_IODEVICE_PRIORITY,
+                                                       M_DEFAULT_IODEVICE_WARN_SLOP_US,
+                                                       M_DEFAULT_IODEVICE_FAIL_SLOP_US,
+                                                       M_MISSED_EXECUTION_DROP);
+}
+
+
+void DATAPixxDevice::stopReadInputsTask() {
+    readInputsTask->cancel();
+    readInputsTask.reset();
+}
+
+
+void DATAPixxDevice::readInputs() {
+    if (!readInputsTask) {
+        // If we've already been canceled, don't try to read more data
+        return;
+    }
+    
+    // Retrieve current register values
+    if (DPxUpdateRegCache(), logError("Cannot update DATAPixx register cache")) {
+        return;
+    }
+    
+    if (haveDigitalInputs()) {
+        const auto bitValue = DPxGetDinValue();
+        if (!logError("Cannot read DATAPixx digital inputs")) {
+            for (auto &channel : digitalInputChannels) {
+                channel->setBitValue(bitValue);
+            }
+        }
+    }
 }
 
 

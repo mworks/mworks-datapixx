@@ -9,6 +9,7 @@
 #ifndef DATAPixxDevice_hpp
 #define DATAPixxDevice_hpp
 
+#include "DATAPixxDigitalInputChannel.hpp"
 #include "DATAPixxDigitalOutputChannel.hpp"
 
 
@@ -18,6 +19,8 @@ BEGIN_NAMESPACE_MW
 class DATAPixxDevice : public IODevice, boost::noncopyable {
     
 public:
+    static const std::string UPDATE_INTERVAL;
+    
     static void describeComponent(ComponentInfo &info);
     
     explicit DATAPixxDevice(const ParameterValueMap &parameters);
@@ -32,18 +35,32 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    bool haveDigitalInputs() const { return !(digitalInputChannels.empty()); }
+    bool configureDigitalInputs();
+    
     bool haveDigitalOutputs() const { return !(digitalOutputChannels.empty()); }
     bool configureDigitalOutputs();
     bool startDigitalOutputs();
     bool stopDigitalOutputs();
     
+    bool haveInputs() const { return haveDigitalInputs(); }
+    void startReadInputsTask();
+    void stopReadInputsTask();
+    void readInputs();
+    
     static std::atomic_flag deviceExists;
+    
+    const MWTime updateInterval;
     
     using lock_guard = std::lock_guard<std::recursive_mutex>;
     lock_guard::mutex_type mutex;
     
+    std::vector<boost::shared_ptr<DATAPixxDigitalInputChannel>> digitalInputChannels;
+    
     std::vector<boost::shared_ptr<DATAPixxDigitalOutputChannel>> digitalOutputChannels;
     int digitalOutputBitMask;
+    
+    boost::shared_ptr<ScheduleTask> readInputsTask;
     
     bool running;
     
