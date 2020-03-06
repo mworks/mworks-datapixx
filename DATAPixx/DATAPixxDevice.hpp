@@ -20,6 +20,7 @@ class DATAPixxDevice : public IODevice, boost::noncopyable {
     
 public:
     static const std::string UPDATE_INTERVAL;
+    static const std::string CLOCK_OFFSET_NANOS;
     static const std::string ENABLE_DIN_STABILIZE;
     static const std::string ENABLE_DIN_DEBOUNCE;
     static const std::string ENABLE_DOUT_DIN_LOOPBACK;
@@ -38,6 +39,8 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    static constexpr MWTime clockSyncUpdateInterval = 1000000;  // One second
+    
     bool haveDigitalInputs() const { return !(digitalInputChannels.empty()); }
     bool configureDigitalInputs();
     bool startDigitalInputs();
@@ -52,12 +55,17 @@ private:
     void stopReadInputsTask();
     void readInputs();
     
+    void updateClockSync(MWTime currentTime);
+    
     static std::atomic_flag deviceExists;
     
     const MWTime updateInterval;
+    const VariablePtr clockOffsetNanosVar;
     const VariablePtr enableDigitalInputStabilize;
     const VariablePtr enableDigitalInputDebounce;
     const VariablePtr enableDigitalLoopback;
+    
+    const boost::shared_ptr<Clock> clock;
     
     using lock_guard = std::lock_guard<std::recursive_mutex>;
     lock_guard::mutex_type mutex;
@@ -68,6 +76,9 @@ private:
     int digitalOutputBitMask;
     
     boost::shared_ptr<ScheduleTask> readInputsTask;
+    
+    MWTime currentClockOffsetNanos;
+    MWTime lastClockSyncUpdateTime;
     
     bool running;
     

@@ -48,10 +48,21 @@ int findFirstCommonBit(int mask1, int mask2) {
 }
 
 
+inline MWTime getDeviceTimeNanos() {
+    unsigned int nanoHigh32, nanoLow32;
+    DPxGetNanoTime(&nanoHigh32, &nanoLow32);
+    if (logError("Cannot retrieve current DATAPixx device time")) {
+        return 0;
+    }
+    return MWTime((std::uint64_t(nanoHigh32) << 32) | std::uint64_t(nanoLow32));
+}
+
+
 END_NAMESPACE()
 
 
 const std::string DATAPixxDevice::UPDATE_INTERVAL("update_interval");
+const std::string DATAPixxDevice::CLOCK_OFFSET_NANOS("clock_offset_nanos");
 const std::string DATAPixxDevice::ENABLE_DIN_STABILIZE("enable_din_stabilize");
 const std::string DATAPixxDevice::ENABLE_DIN_DEBOUNCE("enable_din_debounce");
 const std::string DATAPixxDevice::ENABLE_DOUT_DIN_LOOPBACK("enable_dout_din_loopback");
@@ -63,6 +74,7 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     info.setSignature("iodevice/datapixx");
     
     info.addParameter(UPDATE_INTERVAL, true);
+    info.addParameter(CLOCK_OFFSET_NANOS, false);
     info.addParameter(ENABLE_DIN_STABILIZE, "NO");
     info.addParameter(ENABLE_DIN_DEBOUNCE, "NO");
     info.addParameter(ENABLE_DOUT_DIN_LOOPBACK, "NO");
@@ -72,10 +84,14 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
 DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     IODevice(parameters),
     updateInterval(parameters[UPDATE_INTERVAL]),
+    clockOffsetNanosVar(optionalVariable(parameters[CLOCK_OFFSET_NANOS])),
     enableDigitalInputStabilize(parameters[ENABLE_DIN_STABILIZE]),
     enableDigitalInputDebounce(parameters[ENABLE_DIN_DEBOUNCE]),
     enableDigitalLoopback(parameters[ENABLE_DOUT_DIN_LOOPBACK]),
+    clock(Clock::instance()),
     digitalOutputBitMask(0),
+    currentClockOffsetNanos(0),
+    lastClockSyncUpdateTime(0),
     running(false)
 {
     if (deviceExists.test_and_set()) {
@@ -155,8 +171,11 @@ bool DATAPixxDevice::startDeviceIO() {
             return false;
         }
         
-        if (haveInputs() && !readInputsTask) {
-            startReadInputsTask();
+        if (haveInputs()) {
+            updateClockSync(clock->getCurrentTimeUS());
+            if (!readInputsTask) {
+                startReadInputsTask();
+            }
         }
         
         running = true;
@@ -249,8 +268,10 @@ bool DATAPixxDevice::configureDigitalOutputs() {
                 if (sharedThis->running) {
                     auto bitValue = channel->getBitValue();
                     DPxSetDoutValue(bitValue, bitMask);
-                    if (!logError("Cannot set DATAPixx digital output")) {
-                        logConfigurationFailure();
+                    if (!logError("Cannot set DATAPixx digital output") &&
+                        !logConfigurationFailure())
+                    {
+                        channel->setDeviceTimeNanos(getDeviceTimeNanos(), time);
                     }
                 }
             }
@@ -328,14 +349,66 @@ void DATAPixxDevice::readInputs() {
         return;
     }
     
+    const auto currentTime = clock->getCurrentTimeUS();
+    const auto deviceTimeNanos = getDeviceTimeNanos();
+    
+    MWTime time;
+    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
+        time = currentTime;
+    } else {
+        time = (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
+    }
+    
     if (haveDigitalInputs()) {
         const auto bitValue = DPxGetDinValue();
         if (!logError("Cannot read DATAPixx digital inputs")) {
             for (auto &channel : digitalInputChannels) {
-                channel->setBitValue(bitValue);
+                channel->setBitValue(bitValue, deviceTimeNanos, time);
             }
         }
     }
+    
+    if (currentTime - lastClockSyncUpdateTime >= clockSyncUpdateInterval) {
+        updateClockSync(currentTime);
+    }
+}
+
+
+void DATAPixxDevice::updateClockSync(MWTime currentTime) {
+    // Reset stored clock offset to zero, so that we know not to use it if the
+    // update fails
+    currentClockOffsetNanos = 0;
+    
+    std::array<std::tuple<MWTime, MWTime, std::uint64_t>, 5> samples;
+    
+    for (auto &sample : samples) {
+        auto beforeNS = clock->getCurrentTimeNS();
+        DPxUpdateRegCache();
+        auto afterNS = clock->getCurrentTimeNS();
+        if (logError("Cannot update DATAPixx register cache")) {
+            return;
+        }
+        
+        auto deviceTimeNanos = getDeviceTimeNanos();
+        if (0 == deviceTimeNanos) {
+            return;
+        }
+        
+        sample = std::make_tuple(beforeNS, afterNS - beforeNS, deviceTimeNanos);
+    }
+    
+    // Sort by afterNS-beforeNS and extract median (to exclude outliers)
+    std::sort(samples.begin(), samples.end(), [](const auto &first, const auto &second) {
+        return std::get<1>(first) < std::get<1>(second);
+    });
+    const auto &median = samples.at(samples.size() / 2);
+    
+    currentClockOffsetNanos = (std::get<0>(median) + std::get<1>(median) / 2) - std::get<2>(median);
+    if (clockOffsetNanosVar) {
+        clockOffsetNanosVar->setValue(Datum(currentClockOffsetNanos));
+    }
+    
+    lastClockSyncUpdateTime = currentTime;
 }
 
 

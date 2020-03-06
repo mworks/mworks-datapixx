@@ -20,7 +20,7 @@ class DATAPixxDigitalInputChannel : public DATAPixxDigitalChannel {
 public:
     using DATAPixxDigitalChannel::DATAPixxDigitalChannel;
     
-    virtual void setBitValue(int bitValue) = 0;
+    virtual void setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) = 0;
     
 };
 

@@ -16,7 +16,21 @@ BEGIN_NAMESPACE_MW
 class DATAPixxChannel : public Component {
     
 public:
-    using Component::Component;
+    static const std::string DEVICE_TIME_NANOS;
+    
+    static void describeComponent(ComponentInfo &info);
+    
+    explicit DATAPixxChannel(const ParameterValueMap &parameters);
+    
+protected:
+    void setDeviceTimeNanos(MWTime deviceTimeNanos, MWTime time) {
+        if (deviceTimeNanosVar) {
+            deviceTimeNanosVar->setValue(Datum(deviceTimeNanos), time);
+        }
+    }
+    
+private:
+    const VariablePtr deviceTimeNanosVar;
     
 };
 

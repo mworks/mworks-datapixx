@@ -27,6 +27,8 @@ public:
     virtual int getBitMask() const = 0;
     virtual int getBitValue() const = 0;
     
+    using DATAPixxDigitalChannel::setDeviceTimeNanos;
+    
 };
 
 
