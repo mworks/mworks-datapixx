@@ -52,6 +52,8 @@ END_NAMESPACE()
 
 
 const std::string DATAPixxDevice::UPDATE_INTERVAL("update_interval");
+const std::string DATAPixxDevice::ENABLE_DIN_STABILIZE("enable_din_stabilize");
+const std::string DATAPixxDevice::ENABLE_DIN_DEBOUNCE("enable_din_debounce");
 const std::string DATAPixxDevice::ENABLE_DOUT_DIN_LOOPBACK("enable_dout_din_loopback");
 
 
@@ -61,6 +63,8 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     info.setSignature("iodevice/datapixx");
     
     info.addParameter(UPDATE_INTERVAL, true);
+    info.addParameter(ENABLE_DIN_STABILIZE, "NO");
+    info.addParameter(ENABLE_DIN_DEBOUNCE, "NO");
     info.addParameter(ENABLE_DOUT_DIN_LOOPBACK, "NO");
 }
 
@@ -68,6 +72,8 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
 DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     IODevice(parameters),
     updateInterval(parameters[UPDATE_INTERVAL]),
+    enableDigitalInputStabilize(parameters[ENABLE_DIN_STABILIZE]),
+    enableDigitalInputDebounce(parameters[ENABLE_DIN_DEBOUNCE]),
     enableDigitalLoopback(parameters[ENABLE_DOUT_DIN_LOOPBACK]),
     digitalOutputBitMask(0),
     running(false)
@@ -192,6 +198,24 @@ bool DATAPixxDevice::configureDigitalInputs() {
 
 
 bool DATAPixxDevice::startDigitalInputs() {
+    if (enableDigitalInputStabilize->getValue().getBool()) {
+        DPxEnableDinStabilize();
+    } else {
+        DPxDisableDinStabilize();
+    }
+    if (logError("Cannot configure DATAPixx digital input stabilization")) {
+        return false;
+    }
+    
+    if (enableDigitalInputDebounce->getValue().getBool()) {
+        DPxEnableDinDebounce();
+    } else {
+        DPxDisableDinDebounce();
+    }
+    if (logError("Cannot configure DATAPixx digital input debouncing")) {
+        return false;
+    }
+    
     if (enableDigitalLoopback->getValue().getBool()) {
         DPxEnableDoutDinLoopback();
     } else {
@@ -200,6 +224,7 @@ bool DATAPixxDevice::startDigitalInputs() {
     if (logError("Cannot configure DATAPixx digital loopback")) {
         return false;
     }
+    
     return true;
 }
 

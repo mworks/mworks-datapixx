@@ -20,6 +20,8 @@ class DATAPixxDevice : public IODevice, boost::noncopyable {
     
 public:
     static const std::string UPDATE_INTERVAL;
+    static const std::string ENABLE_DIN_STABILIZE;
+    static const std::string ENABLE_DIN_DEBOUNCE;
     static const std::string ENABLE_DOUT_DIN_LOOPBACK;
     
     static void describeComponent(ComponentInfo &info);
@@ -53,6 +55,8 @@ private:
     static std::atomic_flag deviceExists;
     
     const MWTime updateInterval;
+    const VariablePtr enableDigitalInputStabilize;
+    const VariablePtr enableDigitalInputDebounce;
     const VariablePtr enableDigitalLoopback;
     
     using lock_guard = std::lock_guard<std::recursive_mutex>;
