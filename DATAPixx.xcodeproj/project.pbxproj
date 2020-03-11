@@ -190,18 +190,8 @@
 			children = (
 				E197C02E2410387F00BA6D8D /* DATAPixxDigitalChannel.hpp */,
 				E197C02D2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp */,
-				E171499B241166FD0071C8FA /* DATAPixxDigitalInputChannel.hpp */,
-				E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */,
-				E171499E241167EF0071C8FA /* DATAPixxBitInputChannel.hpp */,
-				E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */,
-				E1CB76F82419204100E9D2A3 /* DATAPixxWordInputChannel.hpp */,
-				E1CB76F72419204100E9D2A3 /* DATAPixxWordInputChannel.cpp */,
-				E197C02B241037C200BA6D8D /* DATAPixxDigitalOutputChannel.hpp */,
-				E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */,
-				E197C03424103C0600BA6D8D /* DATAPixxBitOutputChannel.hpp */,
-				E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */,
-				E1CB76FB2419278000E9D2A3 /* DATAPixxWordOutputChannel.hpp */,
-				E1CB76FA2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp */,
+				E1CB770124193B5400E9D2A3 /* Input */,
+				E1CB770224193B6500E9D2A3 /* Output */,
 			);
 			path = Digital;
 			sourceTree = "<group>";
@@ -212,6 +202,32 @@
 				E1CB76FE2419306500E9D2A3 /* DATAPixx */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		E1CB770124193B5400E9D2A3 /* Input */ = {
+			isa = PBXGroup;
+			children = (
+				E171499B241166FD0071C8FA /* DATAPixxDigitalInputChannel.hpp */,
+				E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */,
+				E171499E241167EF0071C8FA /* DATAPixxBitInputChannel.hpp */,
+				E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */,
+				E1CB76F82419204100E9D2A3 /* DATAPixxWordInputChannel.hpp */,
+				E1CB76F72419204100E9D2A3 /* DATAPixxWordInputChannel.cpp */,
+			);
+			path = Input;
+			sourceTree = "<group>";
+		};
+		E1CB770224193B6500E9D2A3 /* Output */ = {
+			isa = PBXGroup;
+			children = (
+				E197C02B241037C200BA6D8D /* DATAPixxDigitalOutputChannel.hpp */,
+				E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */,
+				E197C03424103C0600BA6D8D /* DATAPixxBitOutputChannel.hpp */,
+				E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */,
+				E1CB76FB2419278000E9D2A3 /* DATAPixxWordOutputChannel.hpp */,
+				E1CB76FA2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp */,
+			);
+			path = Output;
 			sourceTree = "<group>";
 		};
 		E1E93D552405A0B6002374D3 = {
