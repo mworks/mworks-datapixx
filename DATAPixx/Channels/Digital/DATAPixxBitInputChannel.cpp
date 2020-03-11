@@ -12,9 +12,6 @@
 BEGIN_NAMESPACE_MW
 
 
-const std::string DATAPixxBitInputChannel::BIT_NUMBER("bit_number");
-
-
 void DATAPixxBitInputChannel::describeComponent(ComponentInfo &info) {
     DATAPixxDigitalInputChannel::describeComponent(info);
     info.setSignature("iochannel/datapixx_bit_input");

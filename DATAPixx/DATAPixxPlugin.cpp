@@ -9,6 +9,8 @@
 #include "DATAPixxDevice.hpp"
 #include "DATAPixxBitInputChannel.hpp"
 #include "DATAPixxBitOutputChannel.hpp"
+#include "DATAPixxWordInputChannel.hpp"
+#include "DATAPixxWordOutputChannel.hpp"
 
 
 BEGIN_NAMESPACE_MW
@@ -19,6 +21,8 @@ class DATAPixxPlugin : public Plugin {
         registry->registerFactory<StandardComponentFactory, DATAPixxDevice>();
         registry->registerFactory<StandardComponentFactory, DATAPixxBitInputChannel>();
         registry->registerFactory<StandardComponentFactory, DATAPixxBitOutputChannel>();
+        registry->registerFactory<StandardComponentFactory, DATAPixxWordInputChannel>();
+        registry->registerFactory<StandardComponentFactory, DATAPixxWordOutputChannel>();
     }
 };
 

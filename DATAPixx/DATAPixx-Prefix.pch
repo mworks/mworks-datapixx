@@ -11,6 +11,7 @@
 
 #ifdef __cplusplus
 
+#include <MWorksCore/ExpressionVariable.h>
 #include <MWorksCore/IODevice.h>
 #include <MWorksCore/Plugin.h>
 #include <MWorksCore/StandardComponentFactory.h>

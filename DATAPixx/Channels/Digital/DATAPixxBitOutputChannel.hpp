@@ -18,8 +18,6 @@ BEGIN_NAMESPACE_MW
 class DATAPixxBitOutputChannel : public DATAPixxDigitalOutputChannel {
     
 public:
-    static const std::string BIT_NUMBER;
-    
     static void describeComponent(ComponentInfo &info);
     
     explicit DATAPixxBitOutputChannel(const ParameterValueMap &parameters);

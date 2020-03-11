@@ -18,6 +18,8 @@ BEGIN_NAMESPACE_MW
 class DATAPixxDigitalChannel : public DATAPixxChannel {
     
 public:
+    static const std::string BIT_NUMBER;
+    static const std::string BIT_NUMBERS;
     static const std::string VALUE;
     
     static void describeComponent(ComponentInfo &info);
@@ -25,10 +27,11 @@ public:
     explicit DATAPixxDigitalChannel(const ParameterValueMap &parameters);
     
 protected:
-    static void validateBitNumber(int bitNumber);
-    
     static constexpr int bitNumberMin = 0;
     static constexpr int bitNumberMax = 23;
+    
+    static void validateBitNumber(int bitNumber);
+    static void evaluateBitNumbers(const std::string &bitNumbersExpr, std::vector<int> &bitNumbers);
     
     const VariablePtr valueVar;
     
