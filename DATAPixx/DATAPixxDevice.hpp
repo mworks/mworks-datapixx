@@ -21,6 +21,8 @@ class DATAPixxDevice : public IODevice, boost::noncopyable {
 public:
     static const std::string UPDATE_INTERVAL;
     static const std::string CLOCK_OFFSET_NANOS;
+    static const std::string ENABLE_DOUT_PIXEL_MODE;
+    static const std::string ENABLE_DOUT_VSYNC_MODE;
     static const std::string ENABLE_DIN_STABILIZE;
     static const std::string ENABLE_DIN_DEBOUNCE;
     static const std::string ENABLE_DOUT_DIN_LOOPBACK;
@@ -39,7 +41,10 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    static constexpr int digitalOutputVSYNCBitNumber = 23;
     static constexpr MWTime clockSyncUpdateInterval = 1000000;  // One second
+    
+    bool configureDevice();
     
     bool haveDigitalInputs() const { return !(digitalInputChannels.empty()); }
     bool configureDigitalInputs();
@@ -61,6 +66,8 @@ private:
     
     const MWTime updateInterval;
     const VariablePtr clockOffsetNanosVar;
+    const bool enableDigitalOutputPixelMode;
+    const bool enableDigitalOutputVSYNCMode;
     const VariablePtr enableDigitalInputStabilize;
     const VariablePtr enableDigitalInputDebounce;
     const VariablePtr enableDigitalLoopback;

@@ -63,6 +63,8 @@ END_NAMESPACE()
 
 const std::string DATAPixxDevice::UPDATE_INTERVAL("update_interval");
 const std::string DATAPixxDevice::CLOCK_OFFSET_NANOS("clock_offset_nanos");
+const std::string DATAPixxDevice::ENABLE_DOUT_PIXEL_MODE("enable_dout_pixel_mode");
+const std::string DATAPixxDevice::ENABLE_DOUT_VSYNC_MODE("enable_dout_vsync_mode");
 const std::string DATAPixxDevice::ENABLE_DIN_STABILIZE("enable_din_stabilize");
 const std::string DATAPixxDevice::ENABLE_DIN_DEBOUNCE("enable_din_debounce");
 const std::string DATAPixxDevice::ENABLE_DOUT_DIN_LOOPBACK("enable_dout_din_loopback");
@@ -75,6 +77,8 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     
     info.addParameter(UPDATE_INTERVAL, true);
     info.addParameter(CLOCK_OFFSET_NANOS, false);
+    info.addParameter(ENABLE_DOUT_PIXEL_MODE, "NO");
+    info.addParameter(ENABLE_DOUT_VSYNC_MODE, "NO");
     info.addParameter(ENABLE_DIN_STABILIZE, "NO");
     info.addParameter(ENABLE_DIN_DEBOUNCE, "NO");
     info.addParameter(ENABLE_DOUT_DIN_LOOPBACK, "NO");
@@ -85,6 +89,8 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     IODevice(parameters),
     updateInterval(parameters[UPDATE_INTERVAL]),
     clockOffsetNanosVar(optionalVariable(parameters[CLOCK_OFFSET_NANOS])),
+    enableDigitalOutputPixelMode(parameters[ENABLE_DOUT_PIXEL_MODE]),
+    enableDigitalOutputVSYNCMode(parameters[ENABLE_DOUT_VSYNC_MODE]),
     enableDigitalInputStabilize(parameters[ENABLE_DIN_STABILIZE]),
     enableDigitalInputDebounce(parameters[ENABLE_DIN_DEBOUNCE]),
     enableDigitalLoopback(parameters[ENABLE_DOUT_DIN_LOOPBACK]),
@@ -94,11 +100,16 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     lastClockSyncUpdateTime(0),
     running(false)
 {
-    if (deviceExists.test_and_set()) {
-        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Experiment can contain at most one DATAPixx device");
-    }
     if (updateInterval <= 0) {
         throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid update interval");
+    }
+    if (enableDigitalOutputPixelMode && enableDigitalOutputVSYNCMode) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Pixel mode and VSYNC mode cannot be enabled simultaneously");
+    }
+    // Need to do this last.  Otherwise, if a subsequent check throws, the destructor will never run,
+    // and the flag will never be cleared.
+    if (deviceExists.test_and_set()) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Experiment can contain at most one DATAPixx device");
     }
 }
 
@@ -141,6 +152,9 @@ bool DATAPixxDevice::initialize() {
         return false;
     }
     
+    if (!configureDevice()) {
+        return false;
+    }
     if (haveDigitalInputs() && !configureDigitalInputs()) {
         return false;
     }
@@ -207,6 +221,33 @@ bool DATAPixxDevice::stopDeviceIO() {
 }
 
 
+bool DATAPixxDevice::configureDevice() {
+    if (enableDigitalOutputPixelMode) {
+        if (haveDigitalOutputs()) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  "Digital outputs cannot be used when pixel mode is enabled");
+        }
+        DPxEnableDoutPixelMode();
+    } else {
+        DPxDisableDoutPixelMode();
+    }
+    if (logError("Cannot configure DATAPixx digital output pixel mode")) {
+        return false;
+    }
+    
+    if (enableDigitalOutputVSYNCMode) {
+        DPxEnableDoutVsyncMode();
+    } else {
+        DPxDisableDoutVsyncMode();
+    }
+    if (logError("Cannot configure DATAPixx digital output VSYNC mode")) {
+        return false;
+    }
+    
+    return true;
+}
+
+
 bool DATAPixxDevice::configureDigitalInputs() {
     // Reset all bits to input mode
     if (DPxSetDinDataDir(0), logError("Cannot configure DATAPixx digital inputs")) {
@@ -257,6 +298,11 @@ bool DATAPixxDevice::configureDigitalOutputs() {
         if (-1 != duplicateBitNumber) {
             throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
                                   boost::format("Digital output bit %d is already in use") % duplicateBitNumber);
+        }
+        if (enableDigitalOutputVSYNCMode && (bitMask & (1 << digitalOutputVSYNCBitNumber))) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  boost::format("Digital output bit %d cannot be used when VSYNC mode is enabled") %
+                                  digitalOutputVSYNCBitNumber);
         }
         digitalOutputBitMask |= bitMask;
         
