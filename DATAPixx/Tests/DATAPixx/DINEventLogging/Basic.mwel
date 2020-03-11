@@ -1,0 +1,108 @@
+%define update_interval = 1s
+
+var word_out_0_7 = 255
+var word_out_8_15 = 255
+var word_out_16_23 = 255
+
+var word_in_0_7_log = []
+var word_in_8_15_log = []
+var word_in_16_23_log = []
+
+var word_in_0_7 = -1 {
+    word_in_0_7_log += [word_in_0_7]
+}
+
+var word_in_8_15 = -1 {
+    word_in_8_15_log += [word_in_8_15]
+}
+
+var word_in_16_23 = -1 {
+    word_in_16_23_log += [word_in_16_23]
+}
+
+
+iodevice/datapixx datapixx (
+    update_interval = update_interval
+    enable_dout_din_loopback = true
+    autostart = true
+    ) {
+    // Output words
+    iochannel/datapixx_word_output (
+        bit_numbers = 0:7
+        value = word_out_0_7
+        )
+    iochannel/datapixx_word_output (
+        bit_numbers = 8:15
+        value = word_out_8_15
+        )
+    iochannel/datapixx_word_output (
+        bit_numbers = 16:23
+        value = word_out_16_23
+        )
+
+    // Input words
+    iochannel/datapixx_word_input (
+        bit_numbers = 0:7
+        value = word_in_0_7
+        )
+    iochannel/datapixx_word_input (
+        bit_numbers = 15:8
+        value = word_in_8_15
+        )
+    iochannel/datapixx_word_input (
+        bit_numbers = 16:23
+        value = word_in_16_23
+        )
+}
+
+
+%define set_words (value)
+    word_out_0_7 = value
+    word_out_8_15 = value
+    word_out_16_23 = value
+%end
+
+
+protocol {
+    set_words (1)
+    set_words (2)
+    set_words (4)
+    set_words (8)
+    set_words (16)
+    set_words (32)
+    set_words (64)
+    set_words (128)
+    set_words (0)
+
+    wait_for_condition (
+        condition = word_in_16_23 == 0
+        timeout = 1.5 * update_interval
+        )
+
+    assert (word_in_0_7_log == [255, 1, 2, 4, 8, 16, 32, 64, 128, 0])
+    assert (word_in_8_15_log == [255, 128, 64, 32, 16, 8, 4, 2, 1, 0])
+    assert (word_in_16_23_log == [255, 0])
+
+    word_in_0_7_log = []
+    word_in_8_15_log = []
+    word_in_16_23_log = []
+
+    set_words (1)
+    set_words (2)
+    set_words (4)
+    set_words (8)
+    set_words (16)
+    set_words (32)
+    set_words (64)
+    set_words (128)
+    set_words (255)
+
+    wait_for_condition (
+        condition = word_in_16_23 == 255
+        timeout = 1.5 * update_interval
+        )
+
+    assert (word_in_0_7_log == [1, 2, 4, 8, 16, 32, 64, 128, 255])
+    assert (word_in_8_15_log == [128, 64, 32, 16, 8, 4, 2, 1, 255])
+    assert (word_in_16_23_log == [255])
+}

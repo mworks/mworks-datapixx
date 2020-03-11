@@ -11,6 +11,8 @@
 
 #ifdef __cplusplus
 
+#include <boost/endian/arithmetic.hpp>
+
 #include <MWorksCore/ExpressionVariable.h>
 #include <MWorksCore/IODevice.h>
 #include <MWorksCore/Plugin.h>

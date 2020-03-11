@@ -68,6 +68,7 @@ const std::string DATAPixxDevice::ENABLE_DOUT_VSYNC_MODE("enable_dout_vsync_mode
 const std::string DATAPixxDevice::ENABLE_DIN_STABILIZE("enable_din_stabilize");
 const std::string DATAPixxDevice::ENABLE_DIN_DEBOUNCE("enable_din_debounce");
 const std::string DATAPixxDevice::ENABLE_DOUT_DIN_LOOPBACK("enable_dout_din_loopback");
+const std::string DATAPixxDevice::DIN_EVENT_BUFFER_SIZE("din_event_buffer_size");
 
 
 void DATAPixxDevice::describeComponent(ComponentInfo &info) {
@@ -82,6 +83,7 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     info.addParameter(ENABLE_DIN_STABILIZE, "NO");
     info.addParameter(ENABLE_DIN_DEBOUNCE, "NO");
     info.addParameter(ENABLE_DOUT_DIN_LOOPBACK, "NO");
+    info.addParameter(DIN_EVENT_BUFFER_SIZE, "100");
 }
 
 
@@ -94,7 +96,14 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     enableDigitalInputStabilize(parameters[ENABLE_DIN_STABILIZE]),
     enableDigitalInputDebounce(parameters[ENABLE_DIN_DEBOUNCE]),
     enableDigitalLoopback(parameters[ENABLE_DOUT_DIN_LOOPBACK]),
+    digitalInputEventBufferMaxEvents(parameters[DIN_EVENT_BUFFER_SIZE]),
     clock(Clock::instance()),
+    deviceRAMSize(0),
+    nextAvailableRAMAddress(0),
+    digitalInputEventBufferRAMAddress(0),
+    digitalInputEventBufferRAMSize(0),
+    nextDigitalInputEventBufferReadAddress(0),
+    lastCompleteDigitalInputBitValue(0),
     digitalOutputBitMask(0),
     currentClockOffsetNanos(0),
     lastClockSyncUpdateTime(0),
@@ -105,6 +114,9 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     }
     if (enableDigitalOutputPixelMode && enableDigitalOutputVSYNCMode) {
         throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Pixel mode and VSYNC mode cannot be enabled simultaneously");
+    }
+    if (digitalInputEventBufferMaxEvents <= 0) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid digital input event buffer size");
     }
     // Need to do this last.  Otherwise, if a subsequent check throws, the destructor will never run,
     // and the flag will never be cleared.
@@ -181,12 +193,13 @@ bool DATAPixxDevice::startDeviceIO() {
         if (haveDigitalInputs() && !startDigitalInputs()) {
             return false;
         }
+        
         if (logConfigurationFailure()) {
             return false;
         }
         
         if (haveInputs()) {
-            updateClockSync(clock->getCurrentTimeUS());
+            initializeInputs();
             if (!readInputsTask) {
                 startReadInputsTask();
             }
@@ -244,6 +257,11 @@ bool DATAPixxDevice::configureDevice() {
         return false;
     }
     
+    deviceRAMSize = DPxGetRamSize();
+    if (logError("Cannot determine DATAPixx device RAM size")) {
+        return false;
+    }
+    
     return true;
 }
 
@@ -253,6 +271,28 @@ bool DATAPixxDevice::configureDigitalInputs() {
     if (DPxSetDinDataDir(0), logError("Cannot configure DATAPixx digital inputs")) {
         return false;
     }
+    
+    digitalInputEventBufferRAMAddress = nextAvailableRAMAddress;
+    digitalInputEventBufferRAMSize = digitalInputEventBufferMaxEvents * sizeof(DigitalInputEvent);
+    nextAvailableRAMAddress += digitalInputEventBufferRAMSize;
+    if (nextAvailableRAMAddress > deviceRAMSize) {
+        merror(M_IODEVICE_MESSAGE_DOMAIN,
+               "Requested digital input event buffer size is too large for available DATAPixx device RAM");
+        return false;
+    }
+    digitalInputEvents.reserve(digitalInputEventBufferMaxEvents);
+    
+    DPxSetDinBuff(digitalInputEventBufferRAMAddress, digitalInputEventBufferRAMSize);
+    if (logError("Cannot configure DATAPixx digital input event buffer")) {
+        return false;
+    }
+    
+    if ((DPxEnableDinLogTimetags(), logError("Cannot enable DATAPixx digital input event time tagging")) ||
+        (DPxEnableDinLogEvents(), logError("Cannot enable DATAPixx digital input event logging")))
+    {
+        return false;
+    }
+    
     return true;
 }
 
@@ -285,7 +325,27 @@ bool DATAPixxDevice::startDigitalInputs() {
         return false;
     }
     
+    // Discard any existing events in the buffer
+    DPxSetDinBuffWriteAddr(digitalInputEventBufferRAMAddress);
+    if (logError("Cannot clear DATAPixx digital input event buffer")) {
+        return false;
+    }
+    nextDigitalInputEventBufferReadAddress = digitalInputEventBufferRAMAddress;
+    
     return true;
+}
+
+
+void DATAPixxDevice::updateDigitalInputs(int bitValue, MWTime deviceTimeNanos, MWTime currentTime) {
+    MWTime time;
+    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
+        time = currentTime;
+    } else {
+        time = (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
+    }
+    for (auto &channel : digitalInputChannels) {
+        channel->setBitValue(bitValue, deviceTimeNanos, time);
+    }
 }
 
 
@@ -357,6 +417,34 @@ bool DATAPixxDevice::stopDigitalOutputs() {
 }
 
 
+void DATAPixxDevice::initializeInputs() {
+    const auto currentTime = clock->getCurrentTimeUS();
+    const auto currentDeviceTimeNanos = getDeviceTimeNanos();
+    
+    int digitalInputBitValue = 0;
+    bool didReadDigitalInputs = false;
+    
+    // We need to acquire the initial state of digital inputs *before* we compute the clock
+    // offset.  Otherwise, the state we get may reflect events logged by the device while
+    // updateClockSync was running.
+    if (haveDigitalInputs()) {
+        digitalInputBitValue = DPxGetDinValue();
+        if (logError("Cannot read DATAPixx digital inputs")) {
+            lastCompleteDigitalInputBitValue = 0;
+        } else {
+            lastCompleteDigitalInputBitValue = digitalInputBitValue;
+            didReadDigitalInputs = true;
+        }
+    }
+    
+    updateClockSync(currentTime);
+    
+    if (didReadDigitalInputs) {
+        updateDigitalInputs(digitalInputBitValue, currentDeviceTimeNanos, currentTime);
+    }
+}
+
+
 void DATAPixxDevice::startReadInputsTask() {
     boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
     auto action = [weakThis]() {
@@ -396,26 +484,65 @@ void DATAPixxDevice::readInputs() {
     }
     
     const auto currentTime = clock->getCurrentTimeUS();
-    const auto deviceTimeNanos = getDeviceTimeNanos();
-    
-    MWTime time;
-    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
-        time = currentTime;
-    } else {
-        time = (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
-    }
     
     if (haveDigitalInputs()) {
-        const auto bitValue = DPxGetDinValue();
-        if (!logError("Cannot read DATAPixx digital inputs")) {
-            for (auto &channel : digitalInputChannels) {
-                channel->setBitValue(bitValue, deviceTimeNanos, time);
-            }
-        }
+        readDigitalInputs(currentTime);
     }
     
     if (currentTime - lastClockSyncUpdateTime >= clockSyncUpdateInterval) {
         updateClockSync(currentTime);
+    }
+}
+
+
+void DATAPixxDevice::readDigitalInputs(MWTime currentTime) {
+    const auto writeAddress = DPxGetDinBuffWriteAddr();
+    if (logError("Cannot retrieve DATAPixx digital input event buffer write address")) {
+        return;
+    }
+    const auto endAddress = digitalInputEventBufferRAMAddress + digitalInputEventBufferRAMSize;
+    bool didWrap = true;
+    do {
+        unsigned int bytesAvailable = 0;
+        if (nextDigitalInputEventBufferReadAddress > writeAddress) {
+            // Event log wrapped around the end of the buffer.  Read events up to
+            // the end of the buffer now, then read the rest on the next pass through
+            // the loop.
+            bytesAvailable = endAddress - nextDigitalInputEventBufferReadAddress;
+        } else {
+            // No wrapping.  This is the final iteration of the loop.
+            bytesAvailable = writeAddress - nextDigitalInputEventBufferReadAddress;
+            didWrap = false;
+        }
+        if (!bytesAvailable) {
+            return;
+        }
+        
+        digitalInputEvents.resize(bytesAvailable / sizeof(DigitalInputEvent));
+        DPxReadRam(nextDigitalInputEventBufferReadAddress, bytesAvailable, digitalInputEvents.data());
+        if (logError("Cannot read DATAPixx digital input event buffer")) {
+            return;
+        }
+        
+        nextDigitalInputEventBufferReadAddress += bytesAvailable;
+        if (nextDigitalInputEventBufferReadAddress == endAddress) {
+            nextDigitalInputEventBufferReadAddress = digitalInputEventBufferRAMAddress;
+        }
+        
+        for (auto &event : digitalInputEvents) {
+            int bitValue = event.bitValue;
+            // OR in the most recent state of bits 16-23, which aren't logged
+            bitValue |= (lastCompleteDigitalInputBitValue & 0xFF0000);
+            updateDigitalInputs(bitValue, event.deviceTimeNanos, currentTime);
+        }
+    } while (didWrap);
+    
+    // Read the current values to update the state of bits 16-23
+    const auto currentDeviceTimeNanos = getDeviceTimeNanos();
+    const auto bitValue = DPxGetDinValue();
+    if (!logError("Cannot read DATAPixx digital inputs")) {
+        updateDigitalInputs(bitValue, currentDeviceTimeNanos, currentTime);
+        lastCompleteDigitalInputBitValue = bitValue;
     }
 }
 

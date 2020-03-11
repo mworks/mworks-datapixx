@@ -26,6 +26,7 @@ public:
     static const std::string ENABLE_DIN_STABILIZE;
     static const std::string ENABLE_DIN_DEBOUNCE;
     static const std::string ENABLE_DOUT_DIN_LOOPBACK;
+    static const std::string DIN_EVENT_BUFFER_SIZE;
     
     static void describeComponent(ComponentInfo &info);
     
@@ -41,6 +42,11 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    struct DigitalInputEvent {
+        boost::endian::little_uint64_t deviceTimeNanos;
+        boost::endian::little_uint16_t bitValue;  // Bits 0-15 only
+    };
+    
     static constexpr int digitalOutputVSYNCBitNumber = 23;
     static constexpr MWTime clockSyncUpdateInterval = 1000000;  // One second
     
@@ -49,6 +55,7 @@ private:
     bool haveDigitalInputs() const { return !(digitalInputChannels.empty()); }
     bool configureDigitalInputs();
     bool startDigitalInputs();
+    void updateDigitalInputs(int bitValue, MWTime deviceTimeNanos, MWTime currentTime);
     
     bool haveDigitalOutputs() const { return !(digitalOutputChannels.empty()); }
     bool configureDigitalOutputs();
@@ -56,9 +63,11 @@ private:
     bool stopDigitalOutputs();
     
     bool haveInputs() const { return haveDigitalInputs(); }
+    void initializeInputs();
     void startReadInputsTask();
     void stopReadInputsTask();
     void readInputs();
+    void readDigitalInputs(MWTime currentTime);
     
     void updateClockSync(MWTime currentTime);
     
@@ -71,13 +80,22 @@ private:
     const VariablePtr enableDigitalInputStabilize;
     const VariablePtr enableDigitalInputDebounce;
     const VariablePtr enableDigitalLoopback;
+    const int digitalInputEventBufferMaxEvents;
     
     const boost::shared_ptr<Clock> clock;
     
     using lock_guard = std::lock_guard<std::recursive_mutex>;
     lock_guard::mutex_type mutex;
     
+    unsigned int deviceRAMSize;
+    unsigned int nextAvailableRAMAddress;
+    
     std::vector<boost::shared_ptr<DATAPixxDigitalInputChannel>> digitalInputChannels;
+    unsigned int digitalInputEventBufferRAMAddress;
+    unsigned int digitalInputEventBufferRAMSize;
+    unsigned int nextDigitalInputEventBufferReadAddress;
+    std::vector<DigitalInputEvent> digitalInputEvents;
+    int lastCompleteDigitalInputBitValue;
     
     std::vector<boost::shared_ptr<DATAPixxDigitalOutputChannel>> digitalOutputChannels;
     int digitalOutputBitMask;
