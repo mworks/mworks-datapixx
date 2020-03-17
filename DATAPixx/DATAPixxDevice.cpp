@@ -118,18 +118,12 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     if (digitalInputEventBufferMaxEvents <= 0) {
         throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid digital input event buffer size");
     }
-    // Need to do this last.  Otherwise, if a subsequent check throws, the destructor will never run,
-    // and the flag will never be cleared.
-    if (deviceExists.test_and_set()) {
-        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Experiment can contain at most one DATAPixx device");
-    }
 }
 
 
 DATAPixxDevice::~DATAPixxDevice() {
     DPxClose();
     logError("Cannot close DATAPixx device");
-    deviceExists.clear();
 }
 
 
@@ -585,7 +579,19 @@ void DATAPixxDevice::updateClockSync(MWTime currentTime) {
 }
 
 
-std::atomic_flag DATAPixxDevice::deviceExists = ATOMIC_FLAG_INIT;
+DATAPixxDevice::UniqueDeviceGuard::UniqueDeviceGuard() {
+    if (deviceExists.test_and_set()) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Experiment can contain at most one DATAPixx device");
+    }
+}
+
+
+DATAPixxDevice::UniqueDeviceGuard::~UniqueDeviceGuard() {
+    deviceExists.clear();
+}
+
+
+std::atomic_flag DATAPixxDevice::UniqueDeviceGuard::deviceExists = ATOMIC_FLAG_INIT;
 
 
 END_NAMESPACE_MW

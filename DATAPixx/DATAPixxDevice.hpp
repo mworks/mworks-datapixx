@@ -42,6 +42,13 @@ public:
     bool stopDeviceIO() override;
     
 private:
+    struct UniqueDeviceGuard : boost::noncopyable {
+        UniqueDeviceGuard();
+        ~UniqueDeviceGuard();
+    private:
+        static std::atomic_flag deviceExists;
+    };
+    
     struct DigitalInputEvent {
         boost::endian::little_uint64_t deviceTimeNanos;
         boost::endian::little_uint16_t bitValue;  // Bits 0-15 only
@@ -71,8 +78,7 @@ private:
     
     void updateClockSync(MWTime currentTime);
     
-    static std::atomic_flag deviceExists;
-    
+    const UniqueDeviceGuard uniqueDeviceGuard;
     const MWTime updateInterval;
     const VariablePtr clockOffsetNanosVar;
     const bool enableDigitalOutputPixelMode;
