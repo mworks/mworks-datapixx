@@ -20,11 +20,8 @@ class DATAPixxDigitalChannel : public DATAPixxChannel {
 public:
     static const std::string BIT_NUMBER;
     static const std::string BIT_NUMBERS;
-    static const std::string VALUE;
     
-    static void describeComponent(ComponentInfo &info);
-    
-    explicit DATAPixxDigitalChannel(const ParameterValueMap &parameters);
+    using DATAPixxChannel::DATAPixxChannel;
     
 protected:
     static constexpr int bitNumberMin = 0;
@@ -32,8 +29,6 @@ protected:
     
     static void validateBitNumber(int bitNumber);
     static void evaluateBitNumbers(const std::string &bitNumbersExpr, std::vector<int> &bitNumbers);
-    
-    const VariablePtr valueVar;
     
 };
 

@@ -131,6 +131,10 @@ void DATAPixxDevice::addChild(std::map<std::string, std::string> parameters,
                       ComponentRegistryPtr reg,
                       boost::shared_ptr<Component> child)
 {
+    if (auto channel = boost::dynamic_pointer_cast<DATAPixxAnalogOutputChannel>(child)) {
+        analogOutputChannels.push_back(channel);
+        return;
+    }
     if (auto channel = boost::dynamic_pointer_cast<DATAPixxDigitalInputChannel>(child)) {
         digitalInputChannels.push_back(channel);
         return;
@@ -153,12 +157,16 @@ bool DATAPixxDevice::initialize() {
     mprintf(M_IODEVICE_MESSAGE_DOMAIN, "Opened DATAPixx device (ID = %d)", DPxGetID());
     
     if ((DPxStopAllScheds(), logError("Cannot stop existing DATAPixx schedules")) ||
+        (DPxDisableAdcFreeRun(), logError("Cannot disable DATAPixx ADC free run")) ||
         logConfigurationFailure())
     {
         return false;
     }
     
     if (!configureDevice()) {
+        return false;
+    }
+    if (haveAnalogOutputs() && !configureAnalogOutputs()) {
         return false;
     }
     if (haveDigitalInputs() && !configureDigitalInputs()) {
@@ -181,6 +189,9 @@ bool DATAPixxDevice::startDeviceIO() {
     lock_guard lock(mutex);
     
     if (!running) {
+        if (haveAnalogOutputs() && !startAnalogOutputs()) {
+            return false;
+        }
         if (haveDigitalOutputs() && !startDigitalOutputs()) {
             return false;
         }
@@ -192,8 +203,14 @@ bool DATAPixxDevice::startDeviceIO() {
             return false;
         }
         
+        const auto currentTime = clock->getCurrentTimeUS();
+        const auto currentDeviceTimeNanos = getDeviceTimeNanos();
+        
+        if (haveOutputs()) {
+            initializeOutputs(currentDeviceTimeNanos, currentTime);
+        }
         if (haveInputs()) {
-            initializeInputs();
+            initializeInputs(currentDeviceTimeNanos, currentTime);
             if (!readInputsTask) {
                 startReadInputsTask();
             }
@@ -217,6 +234,10 @@ bool DATAPixxDevice::stopDeviceIO() {
         if (haveDigitalOutputs() && !stopDigitalOutputs()) {
             return false;
         }
+        if (haveAnalogOutputs() && !stopAnalogOutputs()) {
+            return false;
+        }
+        
         if (logConfigurationFailure()) {
             return false;
         }
@@ -256,6 +277,89 @@ bool DATAPixxDevice::configureDevice() {
         return false;
     }
     
+    return true;
+}
+
+
+bool DATAPixxDevice::configureAnalogOutputs() {
+    const auto channelNumberMax = DPxGetDacNumChans() - 1;
+    if (logError("Cannot determine number of DAC channels in DATAPixx device")) {
+        return false;
+    }
+    
+    if ((DPxDisableDacCalibRaw(), logError("Cannot disable DATAPixx DAC raw mode")) ||
+        (DPxDisableDacBuffAllChans(), logError("Cannot disable DATAPixx DAC RAM buffering")))
+    {
+        return false;
+    }
+    
+    std::set<int> usedChannelNumbers;
+    boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
+    
+    for (auto &channel : analogOutputChannels) {
+        const auto channelNumber = channel->getChannelNumber();
+        if (channelNumber > channelNumberMax) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  boost::format("Invalid analog output channel number: %d") % channelNumber);
+        }
+        if (!(usedChannelNumbers.insert(channelNumber).second)) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  boost::format("Analog output channel %d is already in use") % channelNumber);
+        }
+        
+        double valueMin, valueMax;
+        DPxGetDacRange(channelNumber, &valueMin, &valueMax);
+        if (logError("Cannot determine range of DATAPixx DAC channel")) {
+            return false;
+        }
+        channel->setValueRange(valueMin, valueMax);
+        
+        // It's OK to capture channel by reference, because it will remain alive (in
+        // analogOutputChannels) for as long as the device is alive
+        auto callback = [weakThis, &channel, channelNumber](const Datum &data, MWTime time) {
+            if (auto sharedThis = weakThis.lock()) {
+                lock_guard lock(sharedThis->mutex);
+                if (sharedThis->running) {
+                    auto value = channel->getValue();
+                    DPxSetDacVoltage(value, channelNumber);
+                    if (!logError("Cannot set DATAPixx analog output voltage") &&
+                        !logConfigurationFailure())
+                    {
+                        channel->setDeviceTimeNanos(getDeviceTimeNanos(), time);
+                    }
+                }
+            }
+        };
+        channel->addNewValueNotification(boost::make_shared<VariableCallbackNotification>(callback));
+    }
+    
+    // Initialize all configured analog output channels to zero
+    if (!stopAnalogOutputs()) {
+        return false;
+    }
+    
+    return true;
+}
+
+
+bool DATAPixxDevice::startAnalogOutputs() {
+    for (auto &channel : analogOutputChannels) {
+        DPxSetDacVoltage(channel->getValue(), channel->getChannelNumber());
+        if (logError("Cannot initialize DATAPixx analog output voltage")) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool DATAPixxDevice::stopAnalogOutputs() {
+    for (auto &channel : analogOutputChannels) {
+        DPxSetDacVoltage(0.0, channel->getChannelNumber());
+        if (logError("Cannot reset DATAPixx analog output voltage")) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -411,10 +515,22 @@ bool DATAPixxDevice::stopDigitalOutputs() {
 }
 
 
-void DATAPixxDevice::initializeInputs() {
-    const auto currentTime = clock->getCurrentTimeUS();
-    const auto currentDeviceTimeNanos = getDeviceTimeNanos();
+void DATAPixxDevice::initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
+    if (haveAnalogOutputs()) {
+        for (auto &channel : analogOutputChannels) {
+            channel->setDeviceTimeNanos(currentDeviceTimeNanos, currentTime);
+        }
+    }
     
+    if (haveDigitalOutputs()) {
+        for (auto &channel : digitalOutputChannels) {
+            channel->setDeviceTimeNanos(currentDeviceTimeNanos, currentTime);
+        }
+    }
+}
+
+
+void DATAPixxDevice::initializeInputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
     int digitalInputBitValue = 0;
     bool didReadDigitalInputs = false;
     

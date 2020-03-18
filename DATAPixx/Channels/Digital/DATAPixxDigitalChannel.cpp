@@ -14,19 +14,6 @@ BEGIN_NAMESPACE_MW
 
 const std::string DATAPixxDigitalChannel::BIT_NUMBER("bit_number");
 const std::string DATAPixxDigitalChannel::BIT_NUMBERS("bit_numbers");
-const std::string DATAPixxDigitalChannel::VALUE("value");
-
-
-void DATAPixxDigitalChannel::describeComponent(ComponentInfo &info) {
-    DATAPixxChannel::describeComponent(info);
-    info.addParameter(VALUE);
-}
-
-
-DATAPixxDigitalChannel::DATAPixxDigitalChannel(const ParameterValueMap &parameters) :
-    DATAPixxChannel(parameters),
-    valueVar(parameters[VALUE])
-{ }
 
 
 void DATAPixxDigitalChannel::validateBitNumber(int bitNumber) {

@@ -34,6 +34,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E105E72624229DDC00DA4182 /* DATAPixxAnalogChannel.cpp */; };
+		E105E72B2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E105E7292422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp */; };
 		E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */; };
 		E11AEA9D2406FE5B00AC3E8B /* libdpx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */; };
 		E11AEAA12406FF4C00AC3E8B /* libdpx.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -106,6 +108,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E105E72624229DDC00DA4182 /* DATAPixxAnalogChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogChannel.cpp; sourceTree = "<group>"; };
+		E105E72724229DDC00DA4182 /* DATAPixxAnalogChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogChannel.hpp; sourceTree = "<group>"; };
+		E105E7292422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogOutputChannel.cpp; sourceTree = "<group>"; };
+		E105E72A2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogOutputChannel.hpp; sourceTree = "<group>"; };
 		E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDevice.cpp; sourceTree = "<group>"; };
 		E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDevice.hpp; sourceTree = "<group>"; };
 		E11AEA972406FDCB00AC3E8B /* usb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = usb.h; sourceTree = "<group>"; };
@@ -154,6 +160,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E105E72524229DA300DA4182 /* Analog */ = {
+			isa = PBXGroup;
+			children = (
+				E105E72724229DDC00DA4182 /* DATAPixxAnalogChannel.hpp */,
+				E105E72624229DDC00DA4182 /* DATAPixxAnalogChannel.cpp */,
+				E105E72A2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.hpp */,
+				E105E7292422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp */,
+			);
+			path = Analog;
+			sourceTree = "<group>";
+		};
 		E11AEA962406FD9700AC3E8B /* libusb */ = {
 			isa = PBXGroup;
 			children = (
@@ -180,6 +197,7 @@
 			children = (
 				E197C031241039DA00BA6D8D /* DATAPixxChannel.hpp */,
 				E197C030241039DA00BA6D8D /* DATAPixxChannel.cpp */,
+				E105E72524229DA300DA4182 /* Analog */,
 				E197C0292410378E00BA6D8D /* Digital */,
 			);
 			path = Channels;
@@ -369,11 +387,13 @@
 				E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */,
 				E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */,
 				E197C02F2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp in Sources */,
+				E105E72B2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp in Sources */,
 				E1CB76FC2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp in Sources */,
 				E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */,
 				E197C032241039DA00BA6D8D /* DATAPixxChannel.cpp in Sources */,
 				E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */,
 				E197C03524103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp in Sources */,
+				E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */,
 				E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */,
 				E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */,
 			);

@@ -9,6 +9,7 @@
 #ifndef DATAPixxDevice_hpp
 #define DATAPixxDevice_hpp
 
+#include "DATAPixxAnalogOutputChannel.hpp"
 #include "DATAPixxDigitalInputChannel.hpp"
 #include "DATAPixxDigitalOutputChannel.hpp"
 
@@ -59,6 +60,11 @@ private:
     
     bool configureDevice();
     
+    bool haveAnalogOutputs() const { return !(analogOutputChannels.empty()); }
+    bool configureAnalogOutputs();
+    bool startAnalogOutputs();
+    bool stopAnalogOutputs();
+    
     bool haveDigitalInputs() const { return !(digitalInputChannels.empty()); }
     bool configureDigitalInputs();
     bool startDigitalInputs();
@@ -69,8 +75,11 @@ private:
     bool startDigitalOutputs();
     bool stopDigitalOutputs();
     
+    bool haveOutputs() const { return (haveAnalogOutputs() || haveDigitalOutputs()); }
+    void initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
+    
     bool haveInputs() const { return haveDigitalInputs(); }
-    void initializeInputs();
+    void initializeInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     void startReadInputsTask();
     void stopReadInputsTask();
     void readInputs();
@@ -95,6 +104,8 @@ private:
     
     unsigned int deviceRAMSize;
     unsigned int nextAvailableRAMAddress;
+    
+    std::vector<boost::shared_ptr<DATAPixxAnalogOutputChannel>> analogOutputChannels;
     
     std::vector<boost::shared_ptr<DATAPixxDigitalInputChannel>> digitalInputChannels;
     unsigned int digitalInputEventBufferRAMAddress;
