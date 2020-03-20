@@ -20,13 +20,10 @@ class DATAPixxDigitalOutputChannel : public DATAPixxDigitalChannel {
 public:
     using DATAPixxDigitalChannel::DATAPixxDigitalChannel;
     
-    void addNewValueNotification(const boost::shared_ptr<VariableNotification> &notification) {
-        valueVar->addNotification(notification);
-    }
-    
     virtual int getBitMask() const = 0;
     virtual int getBitValue() const = 0;
     
+    using DATAPixxDigitalChannel::addNewValueNotification;
     using DATAPixxDigitalChannel::setDeviceTimeNanos;
     
 };

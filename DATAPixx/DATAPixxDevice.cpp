@@ -69,6 +69,8 @@ const std::string DATAPixxDevice::ENABLE_DIN_STABILIZE("enable_din_stabilize");
 const std::string DATAPixxDevice::ENABLE_DIN_DEBOUNCE("enable_din_debounce");
 const std::string DATAPixxDevice::ENABLE_DOUT_DIN_LOOPBACK("enable_dout_din_loopback");
 const std::string DATAPixxDevice::DIN_EVENT_BUFFER_SIZE("din_event_buffer_size");
+const std::string DATAPixxDevice::ANALOG_INPUT_DATA_INTERVAL("analog_input_data_interval");
+const std::string DATAPixxDevice::ENABLE_DAC_ADC_LOOPBACK("enable_dac_adc_loopback");
 
 
 void DATAPixxDevice::describeComponent(ComponentInfo &info) {
@@ -84,6 +86,8 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     info.addParameter(ENABLE_DIN_DEBOUNCE, "NO");
     info.addParameter(ENABLE_DOUT_DIN_LOOPBACK, "NO");
     info.addParameter(DIN_EVENT_BUFFER_SIZE, "100");
+    info.addParameter(ANALOG_INPUT_DATA_INTERVAL, "0");
+    info.addParameter(ENABLE_DAC_ADC_LOOPBACK, "NO");
 }
 
 
@@ -97,9 +101,15 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     enableDigitalInputDebounce(parameters[ENABLE_DIN_DEBOUNCE]),
     enableDigitalLoopback(parameters[ENABLE_DOUT_DIN_LOOPBACK]),
     digitalInputEventBufferMaxEvents(parameters[DIN_EVENT_BUFFER_SIZE]),
+    analogInputDataInterval(parameters[ANALOG_INPUT_DATA_INTERVAL]),
+    enableAnalogLoopback(parameters[ENABLE_DAC_ADC_LOOPBACK]),
     clock(Clock::instance()),
     deviceRAMSize(0),
     nextAvailableRAMAddress(0),
+    analogInputSampleSize(0),
+    analogInputSampleBufferRAMAddress(0),
+    analogInputSampleBufferRAMSize(0),
+    nextAnalogInputSampleBufferReadAddress(0),
     digitalInputEventBufferRAMAddress(0),
     digitalInputEventBufferRAMSize(0),
     nextDigitalInputEventBufferReadAddress(0),
@@ -131,8 +141,20 @@ void DATAPixxDevice::addChild(std::map<std::string, std::string> parameters,
                       ComponentRegistryPtr reg,
                       boost::shared_ptr<Component> child)
 {
+    if (auto channel = boost::dynamic_pointer_cast<DATAPixxAnalogInputChannel>(child)) {
+        const auto channelNumber = channel->getChannelNumber();
+        if (!(analogInputChannels.insert(std::make_pair(channelNumber, channel)).second)) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  boost::format("Analog input channel %d is already in use") % channelNumber);
+        }
+        return;
+    }
     if (auto channel = boost::dynamic_pointer_cast<DATAPixxAnalogOutputChannel>(child)) {
-        analogOutputChannels.push_back(channel);
+        const auto channelNumber = channel->getChannelNumber();
+        if (!(analogOutputChannels.insert(std::make_pair(channelNumber, channel)).second)) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  boost::format("Analog output channel %d is already in use") % channelNumber);
+        }
         return;
     }
     if (auto channel = boost::dynamic_pointer_cast<DATAPixxDigitalInputChannel>(child)) {
@@ -158,12 +180,16 @@ bool DATAPixxDevice::initialize() {
     
     if ((DPxStopAllScheds(), logError("Cannot stop existing DATAPixx schedules")) ||
         (DPxDisableAdcFreeRun(), logError("Cannot disable DATAPixx ADC free run")) ||
+        (DPxDisableDinLogEvents(), logError("Cannot disable DATAPixx digital input event logging")) ||
         logConfigurationFailure())
     {
         return false;
     }
     
     if (!configureDevice()) {
+        return false;
+    }
+    if (haveAnalogInputs() && !configureAnalogInputs()) {
         return false;
     }
     if (haveAnalogOutputs() && !configureAnalogOutputs()) {
@@ -190,6 +216,9 @@ bool DATAPixxDevice::startDeviceIO() {
     
     if (!running) {
         if (haveAnalogOutputs() && !startAnalogOutputs()) {
+            return false;
+        }
+        if (haveAnalogInputs() && !startAnalogInputs()) {
             return false;
         }
         if (haveDigitalOutputs() && !startDigitalOutputs()) {
@@ -232,6 +261,9 @@ bool DATAPixxDevice::stopDeviceIO() {
         }
         
         if (haveDigitalOutputs() && !stopDigitalOutputs()) {
+            return false;
+        }
+        if (haveAnalogInputs() && !stopAnalogInputs()) {
             return false;
         }
         if (haveAnalogOutputs() && !stopAnalogOutputs()) {
@@ -281,6 +313,142 @@ bool DATAPixxDevice::configureDevice() {
 }
 
 
+bool DATAPixxDevice::configureAnalogInputs() {
+    if (analogInputDataInterval <= 0) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid analog input data interval");
+    }
+    if (updateInterval % analogInputDataInterval != 0) {
+        throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                              "Update interval must be an integer multiple of analog input data interval");
+    }
+    
+    const auto channelNumberMax = DPxGetAdcNumChans() - 1;
+    if (logError("Cannot determine number of ADC channels in DATAPixx device")) {
+        return false;
+    }
+    
+    if ((DPxDisableAdcCalibRaw(), logError("Cannot disable DATAPixx ADC raw mode")) ||
+        (DPxDisableAdcBuffAllChans(), logError("Cannot disable DATAPixx ADC RAM buffering")))
+    {
+        return false;
+    }
+    
+    for (auto &item : analogInputChannels) {
+        const auto channelNumber = item.first;
+        auto &channel = item.second;
+        
+        if (channelNumber > channelNumberMax) {
+            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                  boost::format("Invalid analog input channel number: %d") % channelNumber);
+        }
+        
+        double voltageMin, voltageMax;
+        DPxGetAdcRange(channelNumber, &voltageMin, &voltageMax);
+        if (logError("Cannot determine range of DATAPixx ADC channel")) {
+            return false;
+        }
+        channel->setVoltageRange(voltageMin, voltageMax);
+        
+        int referenceSource;
+        switch (channel->getReferenceSource()) {
+            case DATAPixxAnalogInputChannel::ReferenceSource::GND:
+                referenceSource = DPXREG_ADC_CHANREF_GND;
+                break;
+            case DATAPixxAnalogInputChannel::ReferenceSource::DIFF:
+                referenceSource = DPXREG_ADC_CHANREF_DIFF;
+                break;
+            case DATAPixxAnalogInputChannel::ReferenceSource::REF0:
+                referenceSource = DPXREG_ADC_CHANREF_REF0;
+                break;
+            case DATAPixxAnalogInputChannel::ReferenceSource::REF1:
+                referenceSource = DPXREG_ADC_CHANREF_REF1;
+                break;
+        }
+        DPxSetAdcBuffChanRef(channelNumber, referenceSource);
+        if (logError("Cannot set differential reference source of DATAPixx ADC channel")) {
+            return false;
+        }
+        
+        DPxEnableAdcBuffChan(channelNumber);
+        if (logError("Cannot enable RAM buffering on DATAPixx ADC channel")) {
+            return false;
+        }
+    }
+    
+    // Allocate enough buffer space for two full update intervals worth of samples
+    analogInputSampleSize = sizeof(DeviceTimestamp) + analogInputChannels.size() * sizeof(AnalogInputSampleValue);
+    analogInputSampleBufferRAMAddress = nextAvailableRAMAddress;
+    analogInputSampleBufferRAMSize = 2 * (updateInterval / analogInputDataInterval) * analogInputSampleSize;
+    nextAvailableRAMAddress += analogInputSampleBufferRAMSize;
+    if (nextAvailableRAMAddress > deviceRAMSize) {
+        merror(M_IODEVICE_MESSAGE_DOMAIN,
+               "Required analog input sample buffer size is too large for available DATAPixx device RAM");
+        return false;
+    }
+    readBuffer.reserve(analogInputSampleBufferRAMSize);
+    
+    DPxSetAdcBuff(analogInputSampleBufferRAMAddress, analogInputSampleBufferRAMSize);
+    if (logError("Cannot configure DATAPixx analog input sample buffer")) {
+        return false;
+    }
+    
+    if (DPxEnableAdcLogTimetags(), logError("Cannot enable DATAPixx analog input sample time tagging")) {
+        return false;
+    }
+    
+    const auto dataIntervalNanos = analogInputDataInterval * 1000;  // us to ns
+    DPxSetAdcSched(dataIntervalNanos, dataIntervalNanos, DPXREG_SCHED_CTRL_RATE_NANO, 0);
+    if (logError("Cannot configure DATAPixx analog input schedule")) {
+        return false;
+    }
+    
+    return true;
+}
+
+
+bool DATAPixxDevice::startAnalogInputs() {
+    if (enableAnalogLoopback->getValue().getBool()) {
+        DPxEnableDacAdcLoopback();
+    } else {
+        DPxDisableDacAdcLoopback();
+    }
+    if (logError("Cannot configure DATAPixx analog loopback")) {
+        return false;
+    }
+    
+    // Discard any existing samples in the buffer
+    DPxSetAdcBuffWriteAddr(analogInputSampleBufferRAMAddress);
+    if (logError("Cannot clear DATAPixx analog input sample buffer")) {
+        return false;
+    }
+    nextAnalogInputSampleBufferReadAddress = analogInputSampleBufferRAMAddress;
+    
+    if (DPxStartAdcSched(), logError("Cannot start DATAPixx analog input schedule")) {
+        return false;
+    }
+    
+    return true;
+}
+
+
+bool DATAPixxDevice::stopAnalogInputs() {
+    if (DPxStopAdcSched(), logError("Cannot stop DATAPixx analog input schedule")) {
+        return false;
+    }
+    return true;
+}
+
+
+void DATAPixxDevice::updateAnalogInputs(AnalogInputSampleValue *valuePtr, MWTime deviceTimeNanos, MWTime currentTime) {
+    const auto time = applyClockOffset(deviceTimeNanos, currentTime);
+    for (auto &item : analogInputChannels) {
+        auto &channel = item.second;
+        channel->setValue(*valuePtr, deviceTimeNanos, time);
+        valuePtr++;
+    }
+}
+
+
 bool DATAPixxDevice::configureAnalogOutputs() {
     const auto channelNumberMax = DPxGetDacNumChans() - 1;
     if (logError("Cannot determine number of DAC channels in DATAPixx device")) {
@@ -293,26 +461,23 @@ bool DATAPixxDevice::configureAnalogOutputs() {
         return false;
     }
     
-    std::set<int> usedChannelNumbers;
     boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
     
-    for (auto &channel : analogOutputChannels) {
-        const auto channelNumber = channel->getChannelNumber();
+    for (auto &item : analogOutputChannels) {
+        const auto channelNumber = item.first;
+        auto &channel = item.second;
+        
         if (channelNumber > channelNumberMax) {
             throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
                                   boost::format("Invalid analog output channel number: %d") % channelNumber);
         }
-        if (!(usedChannelNumbers.insert(channelNumber).second)) {
-            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
-                                  boost::format("Analog output channel %d is already in use") % channelNumber);
-        }
         
-        double valueMin, valueMax;
-        DPxGetDacRange(channelNumber, &valueMin, &valueMax);
+        double voltageMin, voltageMax;
+        DPxGetDacRange(channelNumber, &voltageMin, &voltageMax);
         if (logError("Cannot determine range of DATAPixx DAC channel")) {
             return false;
         }
-        channel->setValueRange(valueMin, valueMax);
+        channel->setVoltageRange(voltageMin, voltageMax);
         
         // It's OK to capture channel by reference, because it will remain alive (in
         // analogOutputChannels) for as long as the device is alive
@@ -321,8 +486,8 @@ bool DATAPixxDevice::configureAnalogOutputs() {
                 lock_guard lock(sharedThis->mutex);
                 if (sharedThis->running) {
                     auto value = channel->getValue();
-                    DPxSetDacVoltage(value, channelNumber);
-                    if (!logError("Cannot set DATAPixx analog output voltage") &&
+                    DPxSetDacValue(value, channelNumber);
+                    if (!logError("Cannot set DATAPixx analog output") &&
                         !logConfigurationFailure())
                     {
                         channel->setDeviceTimeNanos(getDeviceTimeNanos(), time);
@@ -343,9 +508,11 @@ bool DATAPixxDevice::configureAnalogOutputs() {
 
 
 bool DATAPixxDevice::startAnalogOutputs() {
-    for (auto &channel : analogOutputChannels) {
-        DPxSetDacVoltage(channel->getValue(), channel->getChannelNumber());
-        if (logError("Cannot initialize DATAPixx analog output voltage")) {
+    for (auto &item : analogOutputChannels) {
+        const auto channelNumber = item.first;
+        auto &channel = item.second;
+        DPxSetDacValue(channel->getValue(), channelNumber);
+        if (logError("Cannot initialize DATAPixx analog output")) {
             return false;
         }
     }
@@ -354,9 +521,10 @@ bool DATAPixxDevice::startAnalogOutputs() {
 
 
 bool DATAPixxDevice::stopAnalogOutputs() {
-    for (auto &channel : analogOutputChannels) {
-        DPxSetDacVoltage(0.0, channel->getChannelNumber());
-        if (logError("Cannot reset DATAPixx analog output voltage")) {
+    for (auto &item : analogOutputChannels) {
+        const auto channelNumber = item.first;
+        DPxSetDacValue(0, channelNumber);
+        if (logError("Cannot reset DATAPixx analog output")) {
             return false;
         }
     }
@@ -378,16 +546,14 @@ bool DATAPixxDevice::configureDigitalInputs() {
                "Requested digital input event buffer size is too large for available DATAPixx device RAM");
         return false;
     }
-    digitalInputEvents.reserve(digitalInputEventBufferMaxEvents);
+    readBuffer.reserve(digitalInputEventBufferRAMSize);
     
     DPxSetDinBuff(digitalInputEventBufferRAMAddress, digitalInputEventBufferRAMSize);
     if (logError("Cannot configure DATAPixx digital input event buffer")) {
         return false;
     }
     
-    if ((DPxEnableDinLogTimetags(), logError("Cannot enable DATAPixx digital input event time tagging")) ||
-        (DPxEnableDinLogEvents(), logError("Cannot enable DATAPixx digital input event logging")))
-    {
+    if (DPxEnableDinLogTimetags(), logError("Cannot enable DATAPixx digital input event time tagging")) {
         return false;
     }
     
@@ -430,17 +596,24 @@ bool DATAPixxDevice::startDigitalInputs() {
     }
     nextDigitalInputEventBufferReadAddress = digitalInputEventBufferRAMAddress;
     
+    if (DPxEnableDinLogEvents(), logError("Cannot enable DATAPixx digital input event logging")) {
+        return false;
+    }
+    
+    return true;
+}
+
+
+bool DATAPixxDevice::stopDigitalInputs() {
+    if (DPxDisableDinLogEvents(), logError("Cannot disable DATAPixx digital input event logging")) {
+        return false;
+    }
     return true;
 }
 
 
 void DATAPixxDevice::updateDigitalInputs(int bitValue, MWTime deviceTimeNanos, MWTime currentTime) {
-    MWTime time;
-    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
-        time = currentTime;
-    } else {
-        time = (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
-    }
+    const auto time = applyClockOffset(deviceTimeNanos, currentTime);
     for (auto &channel : digitalInputChannels) {
         channel->setBitValue(bitValue, deviceTimeNanos, time);
     }
@@ -448,6 +621,10 @@ void DATAPixxDevice::updateDigitalInputs(int bitValue, MWTime deviceTimeNanos, M
 
 
 bool DATAPixxDevice::configureDigitalOutputs() {
+    if (DPxDisableDoutButtonSchedules(), logError("Cannot disable DATAPixx DOUT button schedules")) {
+        return false;
+    }
+    
     boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
     
     for (auto &channel : digitalOutputChannels) {
@@ -517,7 +694,8 @@ bool DATAPixxDevice::stopDigitalOutputs() {
 
 void DATAPixxDevice::initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
     if (haveAnalogOutputs()) {
-        for (auto &channel : analogOutputChannels) {
+        for (auto &item : analogOutputChannels) {
+            auto &channel = item.second;
             channel->setDeviceTimeNanos(currentDeviceTimeNanos, currentTime);
         }
     }
@@ -531,8 +709,18 @@ void DATAPixxDevice::initializeOutputs(MWTime currentDeviceTimeNanos, MWTime cur
 
 
 void DATAPixxDevice::initializeInputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
+    std::vector<AnalogInputSampleValue> analogInputValues;
     int digitalInputBitValue = 0;
     bool didReadDigitalInputs = false;
+    
+    for (auto &item : analogInputChannels) {
+        const auto channelNumber = item.first;
+        const auto value = DPxGetAdcValue(channelNumber);
+        if (logError("Cannot read DATAPixx analog input")) {
+            break;
+        }
+        analogInputValues.push_back(value);
+    }
     
     // We need to acquire the initial state of digital inputs *before* we compute the clock
     // offset.  Otherwise, the state we get may reflect events logged by the device while
@@ -548,6 +736,10 @@ void DATAPixxDevice::initializeInputs(MWTime currentDeviceTimeNanos, MWTime curr
     }
     
     updateClockSync(currentTime);
+    
+    if (analogInputValues.size() == analogInputChannels.size()) {
+        updateAnalogInputs(analogInputValues.data(), currentDeviceTimeNanos, currentTime);
+    }
     
     if (didReadDigitalInputs) {
         updateDigitalInputs(digitalInputBitValue, currentDeviceTimeNanos, currentTime);
@@ -594,9 +786,13 @@ void DATAPixxDevice::readInputs() {
     }
     
     const auto currentTime = clock->getCurrentTimeUS();
+    const auto currentDeviceTimeNanos = getDeviceTimeNanos();
     
+    if (haveAnalogInputs()) {
+        readAnalogInputs(currentDeviceTimeNanos, currentTime);
+    }
     if (haveDigitalInputs()) {
-        readDigitalInputs(currentTime);
+        readDigitalInputs(currentDeviceTimeNanos, currentTime);
     }
     
     if (currentTime - lastClockSyncUpdateTime >= clockSyncUpdateInterval) {
@@ -605,7 +801,51 @@ void DATAPixxDevice::readInputs() {
 }
 
 
-void DATAPixxDevice::readDigitalInputs(MWTime currentTime) {
+void DATAPixxDevice::readAnalogInputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
+    const auto writeAddress = DPxGetAdcBuffWriteAddr();
+    if (logError("Cannot retrieve DATAPixx analog input sample buffer write address")) {
+        return;
+    }
+    const auto endAddress = analogInputSampleBufferRAMAddress + analogInputSampleBufferRAMSize;
+    bool didWrap = true;
+    do {
+        unsigned int bytesAvailable = 0;
+        if (nextAnalogInputSampleBufferReadAddress > writeAddress) {
+            // Samples wrapped around the end of the buffer.  Read samples up to
+            // the end of the buffer now, then read the rest on the next pass through
+            // the loop.
+            bytesAvailable = endAddress - nextAnalogInputSampleBufferReadAddress;
+        } else {
+            // No wrapping.  This is the final iteration of the loop.
+            bytesAvailable = writeAddress - nextAnalogInputSampleBufferReadAddress;
+            didWrap = false;
+        }
+        bytesAvailable -= bytesAvailable % analogInputSampleSize;  // Read only complete samples
+        if (!bytesAvailable) {
+            break;
+        }
+        
+        readBuffer.resize(bytesAvailable);
+        DPxReadRam(nextAnalogInputSampleBufferReadAddress, bytesAvailable, readBuffer.data());
+        if (logError("Cannot read DATAPixx analog input sample buffer")) {
+            return;
+        }
+        
+        nextAnalogInputSampleBufferReadAddress += bytesAvailable;
+        if (nextAnalogInputSampleBufferReadAddress == endAddress) {
+            nextAnalogInputSampleBufferReadAddress = analogInputSampleBufferRAMAddress;
+        }
+        
+        for (auto iter = readBuffer.begin(); iter != readBuffer.end(); iter += analogInputSampleSize) {
+            const auto deviceTimeNanos = *reinterpret_cast<DeviceTimestamp *>(&(*iter));
+            auto valuePtr = reinterpret_cast<AnalogInputSampleValue *>(&(*(iter + sizeof(DeviceTimestamp))));
+            updateAnalogInputs(valuePtr, deviceTimeNanos, currentTime);
+        }
+    } while (didWrap);
+}
+
+
+void DATAPixxDevice::readDigitalInputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
     const auto writeAddress = DPxGetDinBuffWriteAddr();
     if (logError("Cannot retrieve DATAPixx digital input event buffer write address")) {
         return;
@@ -624,12 +864,13 @@ void DATAPixxDevice::readDigitalInputs(MWTime currentTime) {
             bytesAvailable = writeAddress - nextDigitalInputEventBufferReadAddress;
             didWrap = false;
         }
+        bytesAvailable -= bytesAvailable % sizeof(DigitalInputEvent);  // Read only complete events
         if (!bytesAvailable) {
-            return;
+            break;
         }
         
-        digitalInputEvents.resize(bytesAvailable / sizeof(DigitalInputEvent));
-        DPxReadRam(nextDigitalInputEventBufferReadAddress, bytesAvailable, digitalInputEvents.data());
+        readBuffer.resize(bytesAvailable);
+        DPxReadRam(nextDigitalInputEventBufferReadAddress, bytesAvailable, readBuffer.data());
         if (logError("Cannot read DATAPixx digital input event buffer")) {
             return;
         }
@@ -639,7 +880,8 @@ void DATAPixxDevice::readDigitalInputs(MWTime currentTime) {
             nextDigitalInputEventBufferReadAddress = digitalInputEventBufferRAMAddress;
         }
         
-        for (auto &event : digitalInputEvents) {
+        for (auto iter = readBuffer.begin(); iter != readBuffer.end(); iter += sizeof(DigitalInputEvent)) {
+            auto &event = *reinterpret_cast<DigitalInputEvent *>(&(*iter));
             int bitValue = event.bitValue;
             // OR in the most recent state of bits 16-23, which aren't logged
             bitValue |= (lastCompleteDigitalInputBitValue & 0xFF0000);
@@ -648,7 +890,6 @@ void DATAPixxDevice::readDigitalInputs(MWTime currentTime) {
     } while (didWrap);
     
     // Read the current values to update the state of bits 16-23
-    const auto currentDeviceTimeNanos = getDeviceTimeNanos();
     const auto bitValue = DPxGetDinValue();
     if (!logError("Cannot read DATAPixx digital inputs")) {
         updateDigitalInputs(bitValue, currentDeviceTimeNanos, currentTime);
@@ -692,6 +933,14 @@ void DATAPixxDevice::updateClockSync(MWTime currentTime) {
     }
     
     lastClockSyncUpdateTime = currentTime;
+}
+
+
+MWTime DATAPixxDevice::applyClockOffset(MWTime deviceTimeNanos, MWTime currentTime) const {
+    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
+        return currentTime;
+    }
+    return (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
 }
 
 

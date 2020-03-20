@@ -22,7 +22,7 @@ public:
     
     explicit DATAPixxWordInputChannel(const ParameterValueMap &parameters);
     
-    void setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) override;
+    void setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) const override;
     
 private:
     std::vector<int> bitNumbers;

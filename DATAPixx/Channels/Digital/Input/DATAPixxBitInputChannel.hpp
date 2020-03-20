@@ -22,7 +22,7 @@ public:
     
     explicit DATAPixxBitInputChannel(const ParameterValueMap &parameters);
     
-    void setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) override;
+    void setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) const override;
     
 private:
     const int bitNumber;

@@ -26,7 +26,7 @@ DATAPixxWordInputChannel::DATAPixxWordInputChannel(const ParameterValueMap &para
 }
 
 
-void DATAPixxWordInputChannel::setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) {
+void DATAPixxWordInputChannel::setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) const {
     long long wordValue = 0;
     for (std::size_t i = 0; i < bitNumbers.size(); i++) {
         const auto bitNumber = bitNumbers.at(i);

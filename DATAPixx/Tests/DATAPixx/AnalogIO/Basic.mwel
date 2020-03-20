@@ -1,0 +1,214 @@
+%define update_interval = 3ms
+%define analog_input_data_interval = 1ms
+
+%define voltage_min = -10.0
+%define voltage_max = 10.0
+
+%define norm_voltage (volts) (volts - voltage_min) / (voltage_max - voltage_min) - 0.5
+%define v2s (volts) min(floor(norm_voltage(volts) * 65536.0 + 0.5), 32767.0)
+
+%define s2v (value) (value + 32768.0) / 65536.0 * (voltage_max - voltage_min) + voltage_min
+
+
+var output_0 = 0.0 {
+    report ('output_0 = $output_0')
+}
+var output_1 = 0.0 {
+    report ('output_1 = $output_1')
+}
+var output_2 = 0.0 {
+    report ('output_2 = $output_2')
+}
+var output_3 = 0.0 {
+    report ('output_3 = $output_3')
+}
+
+var input_0 = 0.0 {
+    input_sample_count_0 += 1
+}
+var input_1 = 0.0 {
+    input_sample_count_1 += 1
+}
+var input_8 = 0.0 {
+    input_sample_count_8 += 1
+}
+var input_14 = 0.0 {
+    input_sample_count_14 += 1
+}
+var input_15 = 0.0 {
+    input_sample_count_15 += 1
+}
+
+var input_sample_count_0 = 0
+var input_sample_count_1 = 0
+var input_sample_count_8 = 0
+var input_sample_count_14 = 0
+var input_sample_count_15 = 0
+
+%define report_inputs ()
+    report ('input_0 = $input_0')
+    report ('input_1 = $input_1')
+    report ('input_8 = $input_8')
+    report ('input_14 = $input_14')
+    report ('input_15 = $input_15')
+%end
+
+
+iodevice/datapixx datapixx (
+    update_interval = update_interval
+    analog_input_data_interval = analog_input_data_interval
+    enable_dac_adc_loopback = true
+    ) {
+    //
+    // Define channels in non-sequential order, to confirm that things are
+    // sorted properly internally
+    //
+
+    //
+    // Output channels
+    //
+    iochannel/datapixx_analog_output (
+        channel_number = 1
+        value = output_1
+        )
+    iochannel/datapixx_analog_output (
+        channel_number = 3
+        value = output_3
+        )
+    iochannel/datapixx_analog_output (
+        channel_number = 2
+        value = output_2
+        )
+    iochannel/datapixx_analog_output (
+        channel_number = 0
+        value = output_0
+        )
+
+    //
+    // Input channels
+    //
+    iochannel/datapixx_analog_input (
+        channel_number = 8
+        value = input_8
+        reference_source = DIFF  // Referenced to adjacent pin (input 9)
+        )
+    iochannel/datapixx_analog_input (
+        channel_number = 1
+        value = input_1
+        reference_source = GND
+        )
+    iochannel/datapixx_analog_input (
+        channel_number = 15
+        value = input_15
+        reference_source = REF1
+        )
+    iochannel/datapixx_analog_input (
+        channel_number = 0
+        value = input_0
+        )
+    iochannel/datapixx_analog_input (
+        channel_number = 14
+        value = input_14
+        reference_source = REF0
+        )
+
+}
+
+
+//
+// ADC data readings are looped back internally from programmed DAC voltages:
+//      DAC_DATA0 => ADC_DATA0/2/4/6/8/10/12/14
+//      DAC_DATA1 => ADC_DATA1/3/5/7/9/11/13/15
+//      DAC_DATA2 => ADC_REF0
+//      DAC_DATA3 => ADC_REF1
+//
+
+%define expected_input_0  = s2v(v2s(output_0))
+%define expected_input_1  = s2v(v2s(output_1))
+%define expected_input_8  = s2v(v2s(output_0) - v2s(output_1))
+%define expected_input_14 = s2v(v2s(output_0) - v2s(output_2))
+%define expected_input_15 = s2v(v2s(output_1) - v2s(output_3))
+
+%define wait_and_assert ()
+    wait (1s)
+    report_inputs ()
+
+    assert(input_0  == expected_input_0)
+    assert(input_1  == expected_input_1)
+    assert(input_8  == expected_input_8)
+    assert(input_14 == expected_input_14)
+    assert(input_15 == expected_input_15)
+%end
+
+var start_time = 0
+var stop_time = 0
+var expected_sample_count = 1  // Avoid division by zero at load time
+
+
+protocol {
+    output_0 = 0.0
+    output_1 = 0.0
+    output_2 = 0.0
+    output_3 = 0.0
+
+    // Start and stop the device to ensure that the outputs are reset
+    start_io_device (datapixx)
+    stop_io_device (datapixx)
+
+    input_0  = -1.0
+    input_1  = -1.0
+    input_8  = -1.0
+    input_14 = -1.0
+    input_15 = -1.0
+    report_inputs ()
+
+    input_sample_count_0 = 0
+    input_sample_count_1 = 0
+    input_sample_count_8 = 0
+    input_sample_count_14 = 0
+    input_sample_count_15 = 0
+
+    report ('Starting device')
+    start_io_device (datapixx)
+    start_time = now()
+
+    report_inputs ()
+    assert(input_0  == 0.0)
+    assert(input_1  == 0.0)
+    assert(input_8  == 0.0)
+    assert(input_14 == 0.0)
+    assert(input_15 == 0.0)
+
+    output_0 = 1.0
+    assert(input_0  != expected_input_0)
+    assert(input_8  != expected_input_8)
+    assert(input_14 != expected_input_14)
+    wait_and_assert ()
+
+    output_1 = -2.0
+    assert(input_1  != expected_input_1)
+    assert(input_8  != expected_input_8)
+    assert(input_15 != expected_input_15)
+    wait_and_assert ()
+
+    output_2 = -3.0
+    assert(input_14 != expected_input_14)
+    wait_and_assert ()
+
+    output_3 = 4.0
+    assert(input_15 != expected_input_15)
+    wait_and_assert ()
+
+    report ('Stopping device')
+    stop_io_device (datapixx)
+    stop_time = now()
+
+    expected_sample_count = (stop_time - start_time) / analog_input_data_interval + 1  // +1 for initial values
+    report ('Expecting approximately $(round(expected_sample_count)) samples per channel')
+    report ('Acquired $input_sample_count_0 samples per channel')
+    assert (abs(expected_sample_count - input_sample_count_0) / expected_sample_count <= 0.001)  // Within 0.1%
+    assert (input_sample_count_1  == input_sample_count_0)
+    assert (input_sample_count_8  == input_sample_count_0)
+    assert (input_sample_count_14 == input_sample_count_0)
+    assert (input_sample_count_15 == input_sample_count_0)
+}

@@ -26,8 +26,15 @@ public:
     
     int getChannelNumber() const { return channelNumber; }
     
-private:
+    void setVoltageRange(double vMin, double vMax) {
+        voltageMin = vMin;
+        voltageMax = vMax;
+    }
+    
+protected:
     const int channelNumber;
+    double voltageMin;
+    double voltageMax;
     
 };
 

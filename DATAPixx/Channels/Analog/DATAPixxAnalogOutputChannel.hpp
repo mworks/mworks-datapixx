@@ -20,24 +20,12 @@ class DATAPixxAnalogOutputChannel : public DATAPixxAnalogChannel {
 public:
     static void describeComponent(ComponentInfo &info);
     
-    explicit DATAPixxAnalogOutputChannel(const ParameterValueMap &parameters);
+    using DATAPixxAnalogChannel::DATAPixxAnalogChannel;
     
-    void addNewValueNotification(const boost::shared_ptr<VariableNotification> &notification) {
-        valueVar->addNotification(notification);
-    }
+    int getValue() const;
     
-    void setValueRange(double min, double max) {
-        valueMin = min;
-        valueMax = max;
-    }
-    
-    double getValue() const;
-    
+    using DATAPixxAnalogChannel::addNewValueNotification;
     using DATAPixxAnalogChannel::setDeviceTimeNanos;
-    
-private:
-    double valueMin;
-    double valueMax;
     
 };
 

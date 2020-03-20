@@ -18,24 +18,19 @@ void DATAPixxAnalogOutputChannel::describeComponent(ComponentInfo &info) {
 }
 
 
-DATAPixxAnalogOutputChannel::DATAPixxAnalogOutputChannel(const ParameterValueMap &parameters) :
-    DATAPixxAnalogChannel(parameters),
-    valueMin(0.0),
-    valueMax(0.0)
-{ }
-
-
-double DATAPixxAnalogOutputChannel::getValue() const {
-    auto value = valueVar->getValue().getFloat();
-    if (value < valueMin || value > valueMax) {
+int DATAPixxAnalogOutputChannel::getValue() const {
+    const auto voltage = valueVar->getValue().getFloat();
+    if (voltage < voltageMin || voltage > voltageMax) {
         merror(M_IODEVICE_MESSAGE_DOMAIN,
                "Value for DATAPixx analog output channel %d must be in the range [%g, %g]",
-               getChannelNumber(),
-               valueMin,
-               valueMax);
-        return 0.0;
+               channelNumber,
+               voltageMin,
+               voltageMax);
+        return 0;
     }
-    return value;
+    const auto normVoltage = (voltage - voltageMin) / (voltageMax - voltageMin) - 0.5;  // Normalize to [-0.5, 0.5]
+    const auto value = int(std::floor(normVoltage * 65536.0 + 0.5));  // Map to [-32768, 32768] with rounding (not truncation)
+    return std::min(value, 32767);  // Maximum 16-bit, 2's complement, signed value is 32767
 }
 
 

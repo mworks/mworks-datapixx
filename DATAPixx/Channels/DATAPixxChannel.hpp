@@ -24,7 +24,11 @@ public:
     explicit DATAPixxChannel(const ParameterValueMap &parameters);
     
 protected:
-    void setDeviceTimeNanos(MWTime deviceTimeNanos, MWTime time) {
+    void addNewValueNotification(const boost::shared_ptr<VariableNotification> &notification) const {
+        valueVar->addNotification(notification);
+    }
+    
+    void setDeviceTimeNanos(MWTime deviceTimeNanos, MWTime time) const {
         if (deviceTimeNanosVar) {
             deviceTimeNanosVar->setValue(Datum(deviceTimeNanos), time);
         }

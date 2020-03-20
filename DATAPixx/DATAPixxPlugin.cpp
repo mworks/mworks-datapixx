@@ -7,6 +7,7 @@
 //
 
 #include "DATAPixxDevice.hpp"
+#include "DATAPixxAnalogInputChannel.hpp"
 #include "DATAPixxAnalogOutputChannel.hpp"
 #include "DATAPixxBitInputChannel.hpp"
 #include "DATAPixxBitOutputChannel.hpp"
@@ -20,6 +21,7 @@ BEGIN_NAMESPACE_MW
 class DATAPixxPlugin : public Plugin {
     void registerComponents(boost::shared_ptr<ComponentRegistry> registry) override {
         registry->registerFactory<StandardComponentFactory, DATAPixxDevice>();
+        registry->registerFactory<StandardComponentFactory, DATAPixxAnalogInputChannel>();
         registry->registerFactory<StandardComponentFactory, DATAPixxAnalogOutputChannel>();
         registry->registerFactory<StandardComponentFactory, DATAPixxBitInputChannel>();
         registry->registerFactory<StandardComponentFactory, DATAPixxBitOutputChannel>();

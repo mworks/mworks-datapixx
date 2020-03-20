@@ -41,6 +41,7 @@
 		E11AEAA12406FF4C00AC3E8B /* libdpx.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		E11AEAA42406FFFF00AC3E8B /* i1Pro.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E11AEAA52407000900AC3E8B /* i1d3SDK.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E15447C2242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */; };
 		E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */; };
 		E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */; };
 		E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */; };
@@ -121,6 +122,8 @@
 		E11AEA9C2406FE5B00AC3E8B /* libdpx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libdpx.dylib; sourceTree = "<group>"; };
 		E11AEA9E2406FEC700AC3E8B /* i1Pro.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = i1Pro.framework; sourceTree = "<group>"; };
 		E11AEA9F2406FEC700AC3E8B /* i1d3SDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = i1d3SDK.framework; sourceTree = "<group>"; };
+		E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogInputChannel.cpp; sourceTree = "<group>"; };
+		E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogInputChannel.hpp; sourceTree = "<group>"; };
 		E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDigitalInputChannel.cpp; sourceTree = "<group>"; };
 		E171499B241166FD0071C8FA /* DATAPixxDigitalInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDigitalInputChannel.hpp; sourceTree = "<group>"; };
 		E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxBitInputChannel.cpp; sourceTree = "<group>"; };
@@ -165,6 +168,8 @@
 			children = (
 				E105E72724229DDC00DA4182 /* DATAPixxAnalogChannel.hpp */,
 				E105E72624229DDC00DA4182 /* DATAPixxAnalogChannel.cpp */,
+				E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */,
+				E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */,
 				E105E72A2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.hpp */,
 				E105E7292422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp */,
 			);
@@ -393,6 +398,7 @@
 				E197C032241039DA00BA6D8D /* DATAPixxChannel.cpp in Sources */,
 				E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */,
 				E197C03524103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp in Sources */,
+				E15447C2242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp in Sources */,
 				E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */,
 				E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */,
 				E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */,

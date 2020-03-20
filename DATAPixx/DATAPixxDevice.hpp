@@ -9,6 +9,7 @@
 #ifndef DATAPixxDevice_hpp
 #define DATAPixxDevice_hpp
 
+#include "DATAPixxAnalogInputChannel.hpp"
 #include "DATAPixxAnalogOutputChannel.hpp"
 #include "DATAPixxDigitalInputChannel.hpp"
 #include "DATAPixxDigitalOutputChannel.hpp"
@@ -28,6 +29,8 @@ public:
     static const std::string ENABLE_DIN_DEBOUNCE;
     static const std::string ENABLE_DOUT_DIN_LOOPBACK;
     static const std::string DIN_EVENT_BUFFER_SIZE;
+    static const std::string ANALOG_INPUT_DATA_INTERVAL;
+    static const std::string ENABLE_DAC_ADC_LOOPBACK;
     
     static void describeComponent(ComponentInfo &info);
     
@@ -50,8 +53,11 @@ private:
         static std::atomic_flag deviceExists;
     };
     
+    using DeviceTimestamp = boost::endian::little_uint64_t;
+    using AnalogInputSampleValue = boost::endian::little_int16_t;  // Signed
+    
     struct DigitalInputEvent {
-        boost::endian::little_uint64_t deviceTimeNanos;
+        DeviceTimestamp deviceTimeNanos;
         boost::endian::little_uint16_t bitValue;  // Bits 0-15 only
     };
     
@@ -59,6 +65,12 @@ private:
     static constexpr MWTime clockSyncUpdateInterval = 1000000;  // One second
     
     bool configureDevice();
+    
+    bool haveAnalogInputs() const { return !(analogInputChannels.empty()); }
+    bool configureAnalogInputs();
+    bool startAnalogInputs();
+    bool stopAnalogInputs();
+    void updateAnalogInputs(AnalogInputSampleValue *valuePtr, MWTime deviceTimeNanos, MWTime currentTime);
     
     bool haveAnalogOutputs() const { return !(analogOutputChannels.empty()); }
     bool configureAnalogOutputs();
@@ -68,6 +80,7 @@ private:
     bool haveDigitalInputs() const { return !(digitalInputChannels.empty()); }
     bool configureDigitalInputs();
     bool startDigitalInputs();
+    bool stopDigitalInputs();
     void updateDigitalInputs(int bitValue, MWTime deviceTimeNanos, MWTime currentTime);
     
     bool haveDigitalOutputs() const { return !(digitalOutputChannels.empty()); }
@@ -78,14 +91,16 @@ private:
     bool haveOutputs() const { return (haveAnalogOutputs() || haveDigitalOutputs()); }
     void initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     
-    bool haveInputs() const { return haveDigitalInputs(); }
+    bool haveInputs() const { return (haveAnalogInputs() || haveDigitalInputs()); }
     void initializeInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     void startReadInputsTask();
     void stopReadInputsTask();
     void readInputs();
-    void readDigitalInputs(MWTime currentTime);
+    void readAnalogInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
+    void readDigitalInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     
     void updateClockSync(MWTime currentTime);
+    MWTime applyClockOffset(MWTime deviceTimeNanos, MWTime currentTime) const;
     
     const UniqueDeviceGuard uniqueDeviceGuard;
     const MWTime updateInterval;
@@ -96,6 +111,8 @@ private:
     const VariablePtr enableDigitalInputDebounce;
     const VariablePtr enableDigitalLoopback;
     const int digitalInputEventBufferMaxEvents;
+    const MWTime analogInputDataInterval;
+    const VariablePtr enableAnalogLoopback;
     
     const boost::shared_ptr<Clock> clock;
     
@@ -105,19 +122,25 @@ private:
     unsigned int deviceRAMSize;
     unsigned int nextAvailableRAMAddress;
     
-    std::vector<boost::shared_ptr<DATAPixxAnalogOutputChannel>> analogOutputChannels;
+    std::map<int, boost::shared_ptr<DATAPixxAnalogInputChannel>> analogInputChannels;
+    std::size_t analogInputSampleSize;
+    unsigned int analogInputSampleBufferRAMAddress;
+    unsigned int analogInputSampleBufferRAMSize;
+    unsigned int nextAnalogInputSampleBufferReadAddress;
+    
+    std::map<int, boost::shared_ptr<DATAPixxAnalogOutputChannel>> analogOutputChannels;
     
     std::vector<boost::shared_ptr<DATAPixxDigitalInputChannel>> digitalInputChannels;
     unsigned int digitalInputEventBufferRAMAddress;
     unsigned int digitalInputEventBufferRAMSize;
     unsigned int nextDigitalInputEventBufferReadAddress;
-    std::vector<DigitalInputEvent> digitalInputEvents;
     int lastCompleteDigitalInputBitValue;
     
     std::vector<boost::shared_ptr<DATAPixxDigitalOutputChannel>> digitalOutputChannels;
     int digitalOutputBitMask;
     
     boost::shared_ptr<ScheduleTask> readInputsTask;
+    std::vector<std::uint8_t> readBuffer;
     
     MWTime currentClockOffsetNanos;
     MWTime lastClockSyncUpdateTime;

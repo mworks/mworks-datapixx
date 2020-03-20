@@ -23,7 +23,9 @@ void DATAPixxAnalogChannel::describeComponent(ComponentInfo &info) {
 
 DATAPixxAnalogChannel::DATAPixxAnalogChannel(const ParameterValueMap &parameters) :
     DATAPixxChannel(parameters),
-    channelNumber(parameters[CHANNEL_NUMBER])
+    channelNumber(parameters[CHANNEL_NUMBER]),
+    voltageMin(0.0),
+    voltageMax(0.0)
 {
     if (channelNumber < 0) {
         throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, boost::format("Invalid channel number: %d") % channelNumber);

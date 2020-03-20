@@ -27,7 +27,7 @@ DATAPixxBitInputChannel::DATAPixxBitInputChannel(const ParameterValueMap &parame
 }
 
 
-void DATAPixxBitInputChannel::setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) {
+void DATAPixxBitInputChannel::setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) const {
     const auto value = bool(bitValue & (1 << bitNumber));
     if (valueVar->getValue().getBool() != value) {
         valueVar->setValue(Datum(value), time);
