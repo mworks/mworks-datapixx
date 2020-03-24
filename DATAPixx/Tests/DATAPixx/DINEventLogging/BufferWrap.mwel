@@ -9,6 +9,9 @@ var word_in = -1 {
     word_in_log += [word_in]
 }
 
+var unbuffered_word_out = 0
+var unbuffered_word_in = -1
+
 
 iodevice/datapixx datapixx (
     update_interval = update_interval
@@ -24,17 +27,24 @@ iodevice/datapixx datapixx (
         bit_numbers = 0:7
         value = word_in
         )
+    iochannel/datapixx_word_output (
+        bit_numbers = 16:23
+        value = unbuffered_word_out
+        )
+    iochannel/datapixx_word_input (
+        bit_numbers = 16:23
+        value = unbuffered_word_in
+        )
 }
 
 
-%define wait_for_word_in (value)
+%define assert_word_in_log (value)
+    unbuffered_word_out += 1
+    assert (unbuffered_word_in != unbuffered_word_out)
     wait_for_condition (
-        condition = word_in == value
+        condition = unbuffered_word_in == unbuffered_word_out
         timeout = 1.5 * update_interval
         )
-%end
-
-%define assert_word_in_log (value)
     assert (word_in_log == value)
     word_in_log = []
 %end
@@ -48,7 +58,6 @@ protocol {
     // Initial word_out value of 0 is stored at buffer index 0
     word_out = 1  // buffer index 1
     word_out = 2  // buffer index 2
-    wait_for_word_in (2)
     assert_word_in_log ([0, 1, 2])
 
     //
@@ -58,7 +67,6 @@ protocol {
     word_out = 4   // buffer index 3
     word_out = 8   // buffer index 0
     word_out = 16  // buffer index 1
-    wait_for_word_in (16)
     assert_word_in_log ([4, 8, 16])
 
     //
@@ -71,7 +79,6 @@ protocol {
     word_out = 255  // buffer index 1
     word_out = 1    // buffer index 2
     word_out = 2    // buffer index 3
-    wait_for_word_in (2)
     assert_word_in_log ([1, 2])
 
     //
@@ -81,6 +88,11 @@ protocol {
     word_out = 4   // buffer index 0
     word_out = 8   // buffer index 1
     word_out = 16  // buffer index 2
-    wait_for_word_in (16)
     assert_word_in_log ([4, 8, 16])
+
+    //
+    // No events (unbuffered_word_in should still be updated)
+    //
+
+    assert_word_in_log ([])
 }
