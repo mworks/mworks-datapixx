@@ -101,6 +101,7 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
     nextDigitalInputEventBufferReadAddress(0),
     lastCompleteDigitalInputBitValue(0),
     digitalOutputBitMask(0),
+    digitalOutputOnInputPortBitValue(0),
     currentClockOffsetNanos(0),
     lastClockSyncUpdateTime(0),
     running(false)
@@ -148,7 +149,11 @@ void DATAPixxDevice::addChild(std::map<std::string, std::string> parameters,
         return;
     }
     if (auto channel = boost::dynamic_pointer_cast<DATAPixxDigitalOutputChannel>(child)) {
-        digitalOutputChannels.push_back(channel);
+        if (channel->shouldUseInputPort()) {
+            digitalOutputChannelsOnInputPort.push_back(channel);
+        } else {
+            digitalOutputChannels.push_back(channel);
+        }
         return;
     }
     throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid channel type for DATAPixx device");
@@ -187,6 +192,9 @@ bool DATAPixxDevice::initialize() {
     if (haveDigitalOutputs() && !configureDigitalOutputs()) {
         return false;
     }
+    if (haveDigitalOutputsOnInputPort() && !configureDigitalOutputsOnInputPort()) {
+        return false;
+    }
     
     // Commit all configuration changes
     if (logConfigurationFailure()) {
@@ -208,6 +216,9 @@ bool DATAPixxDevice::startDeviceIO() {
             return false;
         }
         if (haveDigitalOutputs() && !startDigitalOutputs()) {
+            return false;
+        }
+        if (haveDigitalOutputsOnInputPort() && !startDigitalOutputsOnInputPort()) {
             return false;
         }
         if (haveDigitalInputs() && !startDigitalInputs()) {
@@ -246,6 +257,12 @@ bool DATAPixxDevice::stopDeviceIO() {
             stopReadInputsTask();
         }
         
+        if (haveDigitalInputs() && !stopDigitalInputs()) {
+            return false;
+        }
+        if (haveDigitalOutputsOnInputPort() && !stopDigitalOutputsOnInputPort()) {
+            return false;
+        }
         if (haveDigitalOutputs() && !stopDigitalOutputs()) {
             return false;
         }
@@ -529,15 +546,13 @@ bool DATAPixxDevice::configureDigitalInputs() {
         return false;
     }
     
-    std::set<int> usedBitNumbers;
-    
     for (auto &channel : digitalInputChannels) {
         for (const auto bitNumber : channel->getBitNumbers()) {
             if (bitNumber > bitNumberMax) {
                 throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
                                       boost::format("Invalid digital input bit number: %d") % bitNumber);
             }
-            if (!(usedBitNumbers.insert(bitNumber).second)) {
+            if (!(usedDigitalInputBitNumbers.insert(bitNumber).second)) {
                 throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
                                       boost::format("Digital input bit %d is already in use") % bitNumber);
             }
@@ -710,6 +725,97 @@ bool DATAPixxDevice::stopDigitalOutputs() {
 }
 
 
+bool DATAPixxDevice::configureDigitalOutputsOnInputPort() {
+    const auto bitNumberMax = DPxGetDinNumBits() - 1;
+    if (logError("Cannot determine number of digital input bits in DATAPixx device")) {
+        return false;
+    }
+    
+    std::set<int> usedBitNumbers;
+    int directionMask = 0;
+    boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
+    
+    for (auto &channel : digitalOutputChannelsOnInputPort) {
+        int bitMask = 0;
+        for (const auto bitNumber : channel->getBitNumbers()) {
+            if (bitNumber > bitNumberMax) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Invalid digital input bit number: %d") % bitNumber);
+            }
+            if (usedDigitalInputBitNumbers.find(bitNumber) != usedDigitalInputBitNumbers.end()) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Digital input bit %d is already in use as an input "
+                                                    "and cannot be used as an output") % bitNumber);
+            }
+            if (!(usedBitNumbers.insert(bitNumber).second)) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Digital input bit %d is already in use as an output") % bitNumber);
+            }
+            bitMask |= (1 << bitNumber);
+        }
+        directionMask |= bitMask;
+        
+        // It's OK to capture channel by reference, because it will remain alive (in
+        // digitalOutputChannelsOnInputPort) for as long as the device is alive
+        auto callback = [weakThis, &channel, bitMask](const Datum &data, MWTime time) {
+            if (auto sharedThis = weakThis.lock()) {
+                lock_guard lock(sharedThis->mutex);
+                if (sharedThis->running) {
+                    auto &dataOut = sharedThis->digitalOutputOnInputPortBitValue;
+                    dataOut &= ~bitMask;  // Clear old bits for this channel
+                    auto bitValue = channel->getBitValue();
+                    dataOut |= bitValue;  // Set new bits for this channel
+                    DPxSetDinDataOut(dataOut);
+                    if (!logError("Cannot set DATAPixx digital output on input port") &&
+                        !logConfigurationFailure())
+                    {
+                        channel->setDeviceTimeNanos(getDeviceTimeNanos(), time);
+                    }
+                }
+            }
+        };
+        channel->addNewValueNotification(boost::make_shared<VariableCallbackNotification>(callback));
+    }
+    
+    if ((DPxSetDinDataDir(directionMask), logError("Cannot configure DATAPixx digital inputs as outputs")) ||
+        (DPxSetDinDataOutStrength(1.0), logError("Cannot set drive strength for DATAPixx digital outputs on input port")))
+    {
+        return false;
+    }
+    
+    // Initialize all configured digital output bits on input port to zero
+    if (!stopDigitalOutputsOnInputPort()) {
+        return false;
+    }
+    
+    return true;
+}
+
+
+bool DATAPixxDevice::startDigitalOutputsOnInputPort() {
+    digitalOutputOnInputPortBitValue = 0;
+    
+    for (auto &channel : digitalOutputChannelsOnInputPort) {
+        digitalOutputOnInputPortBitValue |= channel->getBitValue();
+    }
+    
+    DPxSetDinDataOut(digitalOutputOnInputPortBitValue);
+    if (logError("Cannot initialize DATAPixx digital outputs on input port")) {
+        return false;
+    }
+    
+    return true;
+}
+
+
+bool DATAPixxDevice::stopDigitalOutputsOnInputPort() {
+    if (DPxSetDinDataOut(0), logError("Cannot reset DATAPixx digital outputs on input port")) {
+        return false;
+    }
+    return true;
+}
+
+
 void DATAPixxDevice::initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
     if (haveAnalogOutputs()) {
         for (auto &item : analogOutputChannels) {
@@ -720,6 +826,12 @@ void DATAPixxDevice::initializeOutputs(MWTime currentDeviceTimeNanos, MWTime cur
     
     if (haveDigitalOutputs()) {
         for (auto &channel : digitalOutputChannels) {
+            channel->setDeviceTimeNanos(currentDeviceTimeNanos, currentTime);
+        }
+    }
+    
+    if (haveDigitalOutputsOnInputPort()) {
+        for (auto &channel : digitalOutputChannelsOnInputPort) {
             channel->setDeviceTimeNanos(currentDeviceTimeNanos, currentTime);
         }
     }

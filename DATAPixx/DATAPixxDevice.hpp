@@ -88,7 +88,12 @@ private:
     bool startDigitalOutputs();
     bool stopDigitalOutputs();
     
-    bool haveOutputs() const { return (haveAnalogOutputs() || haveDigitalOutputs()); }
+    bool haveDigitalOutputsOnInputPort() const { return !(digitalOutputChannelsOnInputPort.empty()); }
+    bool configureDigitalOutputsOnInputPort();
+    bool startDigitalOutputsOnInputPort();
+    bool stopDigitalOutputsOnInputPort();
+    
+    bool haveOutputs() const { return (haveAnalogOutputs() || haveDigitalOutputs() || haveDigitalOutputsOnInputPort()); }
     void initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     
     bool haveInputs() const { return (haveAnalogInputs() || haveDigitalInputs()); }
@@ -131,6 +136,7 @@ private:
     std::map<int, boost::shared_ptr<DATAPixxAnalogOutputChannel>> analogOutputChannels;
     
     std::vector<boost::shared_ptr<DATAPixxDigitalInputChannel>> digitalInputChannels;
+    std::set<int> usedDigitalInputBitNumbers;
     unsigned int digitalInputEventBufferRAMAddress;
     unsigned int digitalInputEventBufferRAMSize;
     unsigned int nextDigitalInputEventBufferReadAddress;
@@ -138,6 +144,9 @@ private:
     
     std::vector<boost::shared_ptr<DATAPixxDigitalOutputChannel>> digitalOutputChannels;
     int digitalOutputBitMask;
+    
+    std::vector<boost::shared_ptr<DATAPixxDigitalOutputChannel>> digitalOutputChannelsOnInputPort;
+    int digitalOutputOnInputPortBitValue;
     
     boost::shared_ptr<ScheduleTask> readInputsTask;
     std::vector<std::uint8_t> readBuffer;

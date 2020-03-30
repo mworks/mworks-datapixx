@@ -18,12 +18,20 @@ BEGIN_NAMESPACE_MW
 class DATAPixxDigitalOutputChannel : public DATAPixxDigitalChannel {
     
 public:
-    using DATAPixxDigitalChannel::DATAPixxDigitalChannel;
+    static const std::string USE_INPUT_PORT;
     
+    static void describeComponent(ComponentInfo &info);
+    
+    explicit DATAPixxDigitalOutputChannel(const ParameterValueMap &parameters);
+    
+    bool shouldUseInputPort() const { return useInputPort; }
     virtual int getBitValue() const = 0;
     
     using DATAPixxDigitalChannel::addNewValueNotification;
     using DATAPixxDigitalChannel::setDeviceTimeNanos;
+    
+private:
+    const bool useInputPort;
     
 };
 
