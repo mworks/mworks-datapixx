@@ -17,7 +17,7 @@ const std::string DATAPixxDigitalChannel::BIT_NUMBERS("bit_numbers");
 
 
 void DATAPixxDigitalChannel::validateBitNumber(int bitNumber) {
-    if (bitNumber < bitNumberMin || bitNumber > bitNumberMax) {
+    if (bitNumber < 0) {
         throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, boost::format("Invalid bit number: %d") % bitNumber);
     }
 }

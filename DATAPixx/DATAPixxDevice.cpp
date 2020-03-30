@@ -34,20 +34,6 @@ inline bool logConfigurationFailure() {
 }
 
 
-int findFirstCommonBit(int mask1, int mask2) {
-    auto commonBits = mask1 & mask2;
-    if (!commonBits) {
-        return -1;
-    }
-    int index = 0;
-    while (!(commonBits & 1)) {
-        commonBits >>= 1;
-        index++;
-    }
-    return index;
-}
-
-
 inline MWTime getDeviceTimeNanos() {
     unsigned int nanoHigh32, nanoLow32;
     DPxGetNanoTime(&nanoHigh32, &nanoLow32);
@@ -533,9 +519,29 @@ bool DATAPixxDevice::stopAnalogOutputs() {
 
 
 bool DATAPixxDevice::configureDigitalInputs() {
+    const auto bitNumberMax = DPxGetDinNumBits() - 1;
+    if (logError("Cannot determine number of digital input bits in DATAPixx device")) {
+        return false;
+    }
+    
     // Reset all bits to input mode
     if (DPxSetDinDataDir(0), logError("Cannot configure DATAPixx digital inputs")) {
         return false;
+    }
+    
+    std::set<int> usedBitNumbers;
+    
+    for (auto &channel : digitalInputChannels) {
+        for (const auto bitNumber : channel->getBitNumbers()) {
+            if (bitNumber > bitNumberMax) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Invalid digital input bit number: %d") % bitNumber);
+            }
+            if (!(usedBitNumbers.insert(bitNumber).second)) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Digital input bit %d is already in use") % bitNumber);
+            }
+        }
     }
     
     digitalInputEventBufferRAMAddress = nextAvailableRAMAddress;
@@ -621,23 +627,35 @@ void DATAPixxDevice::updateDigitalInputs(int bitValue, MWTime deviceTimeNanos, M
 
 
 bool DATAPixxDevice::configureDigitalOutputs() {
+    const auto bitNumberMax = DPxGetDoutNumBits() - 1;
+    if (logError("Cannot determine number of digital output bits in DATAPixx device")) {
+        return false;
+    }
+    
     if (DPxDisableDoutButtonSchedules(), logError("Cannot disable DATAPixx DOUT button schedules")) {
         return false;
     }
     
+    std::set<int> usedBitNumbers;
     boost::weak_ptr<DATAPixxDevice> weakThis(component_shared_from_this<DATAPixxDevice>());
     
     for (auto &channel : digitalOutputChannels) {
-        const auto bitMask = channel->getBitMask();
-        const auto duplicateBitNumber = findFirstCommonBit(digitalOutputBitMask, bitMask);
-        if (-1 != duplicateBitNumber) {
-            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
-                                  boost::format("Digital output bit %d is already in use") % duplicateBitNumber);
-        }
-        if (enableDigitalOutputVSYNCMode && (bitMask & (1 << digitalOutputVSYNCBitNumber))) {
-            throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
-                                  boost::format("Digital output bit %d cannot be used when VSYNC mode is enabled") %
-                                  digitalOutputVSYNCBitNumber);
+        int bitMask = 0;
+        for (const auto bitNumber : channel->getBitNumbers()) {
+            if (bitNumber > bitNumberMax) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Invalid digital output bit number: %d") % bitNumber);
+            }
+            if (!(usedBitNumbers.insert(bitNumber).second)) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Digital output bit %d is already in use") % bitNumber);
+            }
+            if (enableDigitalOutputVSYNCMode && (bitNumber == digitalOutputVSYNCBitNumber)) {
+                throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
+                                      boost::format("Digital output bit %d cannot be used when VSYNC mode is enabled") %
+                                      bitNumber);
+            }
+            bitMask |= (1 << bitNumber);
         }
         digitalOutputBitMask |= bitMask;
         
@@ -883,13 +901,13 @@ void DATAPixxDevice::readDigitalInputs(MWTime currentDeviceTimeNanos, MWTime cur
         for (auto iter = readBuffer.begin(); iter != readBuffer.end(); iter += sizeof(DigitalInputEvent)) {
             auto &event = *reinterpret_cast<DigitalInputEvent *>(&(*iter));
             int bitValue = event.bitValue;
-            // OR in the most recent state of bits 16-23, which aren't logged
-            bitValue |= (lastCompleteDigitalInputBitValue & 0xFF0000);
+            // OR in the most recent state of bits 16 and higher, which aren't logged
+            bitValue |= ((lastCompleteDigitalInputBitValue >> 16) << 16);
             updateDigitalInputs(bitValue, event.deviceTimeNanos, currentTime);
         }
     } while (didWrap);
     
-    // Read the current values to update the state of bits 16-23
+    // Read the current values to update the state of bits 16 and higher
     const auto bitValue = DPxGetDinValue();
     if (!logError("Cannot read DATAPixx digital inputs")) {
         updateDigitalInputs(bitValue, currentDeviceTimeNanos, currentTime);

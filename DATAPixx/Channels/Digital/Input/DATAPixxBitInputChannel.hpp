@@ -22,6 +22,7 @@ public:
     
     explicit DATAPixxBitInputChannel(const ParameterValueMap &parameters);
     
+    std::set<int> getBitNumbers() const override;
     void setBitValue(int bitValue, MWTime deviceTimeNanos, MWTime time) const override;
     
 private:

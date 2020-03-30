@@ -26,12 +26,8 @@ DATAPixxWordOutputChannel::DATAPixxWordOutputChannel(const ParameterValueMap &pa
 }
 
 
-int DATAPixxWordOutputChannel::getBitMask() const {
-    int bitMask = 0;
-    for (auto bitNumber : bitNumbers) {
-        bitMask |= (1 << bitNumber);
-    }
-    return bitMask;
+std::set<int> DATAPixxWordOutputChannel::getBitNumbers() const {
+    return std::set<int>(bitNumbers.begin(), bitNumbers.end());
 }
 
 

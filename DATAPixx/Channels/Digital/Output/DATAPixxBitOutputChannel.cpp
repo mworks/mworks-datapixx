@@ -27,8 +27,8 @@ DATAPixxBitOutputChannel::DATAPixxBitOutputChannel(const ParameterValueMap &para
 }
 
 
-int DATAPixxBitOutputChannel::getBitMask() const {
-    return (1 << bitNumber);
+std::set<int> DATAPixxBitOutputChannel::getBitNumbers() const {
+    return { bitNumber };
 }
 
 

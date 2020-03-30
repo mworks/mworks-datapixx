@@ -23,10 +23,9 @@ public:
     
     using DATAPixxChannel::DATAPixxChannel;
     
-protected:
-    static constexpr int bitNumberMin = 0;
-    static constexpr int bitNumberMax = 23;
+    virtual std::set<int> getBitNumbers() const = 0;
     
+protected:
     static void validateBitNumber(int bitNumber);
     static void evaluateBitNumbers(const std::string &bitNumbersExpr, std::vector<int> &bitNumbers);
     

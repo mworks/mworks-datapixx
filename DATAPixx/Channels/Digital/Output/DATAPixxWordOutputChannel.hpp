@@ -22,7 +22,7 @@ public:
     
     explicit DATAPixxWordOutputChannel(const ParameterValueMap &parameters);
     
-    int getBitMask() const override;
+    std::set<int> getBitNumbers() const override;
     int getBitValue() const override;
     
 private:
