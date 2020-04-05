@@ -1,0 +1,295 @@
+---
+
+
+name: DATAPixx Device
+signature: iodevice/datapixx
+isa: IODevice
+allowed_child: DATAPixx Channel
+description: >
+    Interface to a `DATAPixx <https://vpixx.com/our-products/video-i-o-hub/>`_
+    or `VIEWPixx <https://vpixx.com/our-products/crt-replacement/>`_ device
+parameters: 
+  - 
+    name: update_interval
+    required: yes
+    example: 3ms
+    description: >
+        MWorks will poll the device for new input data every ``update_interval``
+        microseconds
+  - 
+    name: clock_offset_nanos
+    description: |
+        Variable in which to store the computed offset (in nanoseconds) between
+        the device clock and MWorks' clock.
+
+        The clock offset is recomputed once per second and is used to convert
+        DATAPixx event and sample times to MWorks times.  Use this parameter if
+        you want a record of the computed clock offsets in your event file.
+  - 
+    name: enable_dout_pixel_mode
+    default: 'NO'
+    description: |
+        If ``YES``, the digital output port will be used to output the RGB value
+        of the first upper left pixel of the screen.
+
+        In this mode, the digital output port cannot be used for `bit output
+        <DATAPixx Bit Output Channel>` or `word output <DATAPixx Word Output
+        Channel>` channels.  However, these channels may still be configured on
+        the digital input port.
+  - 
+    name: enable_dout_vsync_mode
+    default: 'NO'
+    description: |
+        If ``YES``, the VSYNC signal will be output on bit 23 of the digital
+        output port.
+
+        This mode cannot be enabled if `enable_dout_pixel_mode`_ is set to
+        ``YES``.
+  - 
+    name: enable_din_stabilize
+    default: 'NO'
+    description: >
+        If ``YES``, digital input transitions are recognized only after the
+        entire digital input bus has been stable for 80 nanoseconds
+  - 
+    name: enable_din_debounce
+    default: 'NO'
+    description: >
+        If ``YES``, after a digital input transitions, further transitions will
+        be ignored for the next 30 milliseconds
+  - 
+    name: enable_dout_din_loopback
+    default: 'NO'
+    description: >
+        If ``YES``, digital output bits are looped back to the corresponding
+        digital input bits.  This is useful primarily for testing the device.
+  - 
+    name: din_event_buffer_size
+    default: 100
+    description: >
+        Transitions on digital input bits 0-15 are logged to an on-device buffer
+        and read by MWorks at the rate specified by `update_interval`_. This
+        parameter sets the maximum size (in number of events) of the buffer.  If
+        the buffer is too small, writes will "wrap", and new events will
+        overwrite old ones.
+  - 
+    name: analog_input_data_interval
+    example: 1ms
+    description: >
+        Interval between acquired samples on analog input channels
+        (microseconds)
+  - 
+    name: enable_dac_adc_loopback
+    default: 'NO'
+    description: |
+        If ``YES``, analog outputs are looped back to analog inputs as follows::
+
+            DAC_DATA0 → ADC_DATA0/2/4/6/8/10/12/14
+            DAC_DATA1 → ADC_DATA1/3/5/7/9/11/13/15
+            DAC_DATA2 → ADC_REF0
+            DAC_DATA3 → ADC_REF1
+
+        This is useful primarily for testing the device.
+
+
+---
+
+
+name: DATAPixx Channel
+abstract: yes
+isa: IOChannel
+
+
+---
+
+
+name: DATAPixx Analog Input Channel
+signature: iochannel/datapixx_analog_input
+isa: DATAPixx Channel
+description: Analog input channel on a `DATAPixx Device`
+parameters: 
+  - 
+    name: channel_number
+    required: yes
+    example: [0, 7, 15]
+    description: Analog input channel number
+  - 
+    name: value
+    required: yes
+    description: Variable in which to store input voltage values
+  - 
+    name: reference_source
+    options: [GND, DIFF, REF0, REF1]
+    default: GND
+    description: |
+        Differential reference source for the channel.  The following values
+        are supported:
+
+        ``GND``
+            Referenced to ground
+
+        ``DIFF``
+            Referenced to adjacent analog input (e.g. channel 0 is referenced to
+            channel 1, channel 2 is referenced to channel 3, etc.)
+
+        ``REF0``
+            Referenced to REF0 analog input
+
+        ``REF1``
+            Referenced to REF1 analog input
+  - 
+    name: device_time_nanos
+    description: >
+        Variable in which to store the device time (in nanoseconds) when each
+        value is acquired by the device
+
+
+---
+
+
+name: DATAPixx Analog Output Channel
+signature: iochannel/datapixx_analog_output
+isa: DATAPixx Channel
+description: Analog output channel on a `DATAPixx Device`
+parameters: 
+  - 
+    name: channel_number
+    required: yes
+    example: [0, 3]
+    description: Analog output channel number
+  - 
+    name: value
+    required: yes
+    description: >
+        Variable from which to read output voltage values.  `Assigning <Assign
+        Variable>` a value to the variable causes the output voltage to be
+        changed immediately.
+  - 
+    name: device_time_nanos
+    description: >
+        Variable in which to store the device time (in nanoseconds) when each
+        value is output by the device
+
+
+---
+
+
+name: DATAPixx Bit Input Channel
+signature: iochannel/datapixx_bit_input
+isa: DATAPixx Channel
+description: Bit input channel on a `DATAPixx Device`
+parameters: 
+  - 
+    name: bit_number
+    required: yes
+    example: [0, 12, 23]
+    description: Digital input bit number
+  - 
+    name: value
+    required: yes
+    description: Variable in which to store input state (true or false)
+  - 
+    name: device_time_nanos
+    description: >
+        Variable in which to store the device time (in nanoseconds) when each
+        value is recorded by the device
+
+
+---
+
+
+name: DATAPixx Word Input Channel
+signature: iochannel/datapixx_word_input
+isa: DATAPixx Channel
+description: Word input channel on a `DATAPixx Device`
+parameters: 
+  - 
+    name: bit_numbers
+    required: yes
+    example: ['2,3,4', '5:8', '4:2,11']
+    description: >
+        Digital input bits from which to read the individual bits of words
+        stored in `value`_.  The first input bit is used as the word's least
+        significant bit, the last bit the most significant.
+  - 
+    name: value
+    required: yes
+    description: Variable in which to store input word (an integer)
+  - 
+    name: device_time_nanos
+    description: >
+        Variable in which to store the device time (in nanoseconds) when each
+        value is recorded by the device
+
+
+---
+
+
+name: DATAPixx Bit Output Channel
+signature: iochannel/datapixx_bit_output
+isa: DATAPixx Channel
+description: Bit output channel on a `DATAPixx Device`
+parameters: 
+  - 
+    name: bit_number
+    required: yes
+    example: [0, 12, 23]
+    description: Digital output bit number
+  - 
+    name: value
+    required: yes
+    description: >
+        Variable from which to read output state (true or false).  `Assigning
+        <Assign Variable>` a value to the variable causes the output state to be
+        changed immediately.
+  - 
+    name: use_input_port
+    default: 'NO'
+    description: >
+        If ``YES``, use the specified `bit_number`_ on the digital *input* port,
+        instead of the output port.  (DATAPixx digital input bits can be
+        configured as either inputs or outputs.)
+  - 
+    name: device_time_nanos
+    description: >
+        Variable in which to store the device time (in nanoseconds) when each
+        value is output by the device
+
+
+---
+
+
+name: DATAPixx Word Output Channel
+signature: iochannel/datapixx_word_output
+isa: DATAPixx Channel
+description: Word output channel on a `DATAPixx Device`
+parameters: 
+  - 
+    name: bit_numbers
+    required: yes
+    example: ['2,3,4', '5:8', '4:2,11']
+    description: >
+        Digital output bits used to output the individual bits of words assigned
+        to `value`_.  The first output bit receives the word's least
+        significant bit, the last bit the most significant.
+  - 
+    name: value
+    required: yes
+    description: >
+        Variable from which to read output word (an integer).  `Assigning
+        <Assign Variable>` a value to the variable causes the state of the bits
+        specified in `bit_numbers`_ to be changed immediately.
+  - 
+    name: use_input_port
+    default: 'NO'
+    description: >
+        If ``YES``, use the specified `bit_numbers`_ on the digital *input*
+        port, instead of the output port.  (DATAPixx digital input bits can be
+        configured as either inputs or outputs.)
+  - 
+    name: device_time_nanos
+    description: >
+        Variable in which to store the device time (in nanoseconds) when each
+        value is output by the device
+
+

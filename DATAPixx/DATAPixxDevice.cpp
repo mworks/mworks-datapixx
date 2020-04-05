@@ -288,7 +288,8 @@ bool DATAPixxDevice::configureDevice() {
     if (enableDigitalOutputPixelMode) {
         if (haveDigitalOutputs()) {
             throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN,
-                                  "Digital outputs cannot be used when pixel mode is enabled");
+                                  "Digital output port cannot be used when pixel mode is enabled; "
+                                  "please use a digital output on the input port instead");
         }
         DPxEnableDoutPixelMode();
     } else {

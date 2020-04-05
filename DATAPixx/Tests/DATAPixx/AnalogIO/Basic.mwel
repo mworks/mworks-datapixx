@@ -54,7 +54,7 @@ var input_sample_count_15 = 0
 %end
 
 
-iodevice/datapixx datapixx (
+datapixx datapixx (
     update_interval = update_interval
     analog_input_data_interval = analog_input_data_interval
     enable_dac_adc_loopback = true
@@ -67,19 +67,19 @@ iodevice/datapixx datapixx (
     //
     // Output channels
     //
-    iochannel/datapixx_analog_output (
+    datapixx_analog_output (
         channel_number = 1
         value = output_1
         )
-    iochannel/datapixx_analog_output (
+    datapixx_analog_output (
         channel_number = 3
         value = output_3
         )
-    iochannel/datapixx_analog_output (
+    datapixx_analog_output (
         channel_number = 2
         value = output_2
         )
-    iochannel/datapixx_analog_output (
+    datapixx_analog_output (
         channel_number = 0
         value = output_0
         )
@@ -87,26 +87,26 @@ iodevice/datapixx datapixx (
     //
     // Input channels
     //
-    iochannel/datapixx_analog_input (
+    datapixx_analog_input (
         channel_number = 8
         value = input_8
         reference_source = DIFF  // Referenced to adjacent pin (input 9)
         )
-    iochannel/datapixx_analog_input (
+    datapixx_analog_input (
         channel_number = 1
         value = input_1
         reference_source = GND
         )
-    iochannel/datapixx_analog_input (
+    datapixx_analog_input (
         channel_number = 15
         value = input_15
         reference_source = REF1
         )
-    iochannel/datapixx_analog_input (
+    datapixx_analog_input (
         channel_number = 0
         value = input_0
         )
-    iochannel/datapixx_analog_input (
+    datapixx_analog_input (
         channel_number = 14
         value = input_14
         reference_source = REF0

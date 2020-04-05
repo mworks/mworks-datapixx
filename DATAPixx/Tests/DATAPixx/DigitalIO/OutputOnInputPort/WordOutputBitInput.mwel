@@ -1,27 +1,27 @@
 %include '../includes/WordOutputBitInput.inc'
 
 
-iodevice/datapixx datapixx (
+datapixx datapixx (
     update_interval = 3ms
     ) {
-    iochannel/datapixx_word_output (
+    datapixx_word_output (
         bit_numbers = 5,11,17,23
         value = word
         use_input_port = true
         )
-    iochannel/datapixx_bit_input (
+    datapixx_bit_input (
         bit_number = 18
         value = bit0
         )
-    iochannel/datapixx_bit_input (
+    datapixx_bit_input (
         bit_number = 12
         value = bit1
         )
-    iochannel/datapixx_bit_input (
+    datapixx_bit_input (
         bit_number = 6
         value = bit2
         )
-    iochannel/datapixx_bit_input (
+    datapixx_bit_input (
         bit_number = 0
         value = bit3
         )

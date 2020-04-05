@@ -21,35 +21,35 @@ var word_in_16_23 = -1 {
 }
 
 
-iodevice/datapixx datapixx (
+datapixx datapixx (
     update_interval = update_interval
     enable_dout_din_loopback = true
     autostart = true
     ) {
     // Output words
-    iochannel/datapixx_word_output (
+    datapixx_word_output (
         bit_numbers = 0:7
         value = word_out_0_7
         )
-    iochannel/datapixx_word_output (
+    datapixx_word_output (
         bit_numbers = 8:15
         value = word_out_8_15
         )
-    iochannel/datapixx_word_output (
+    datapixx_word_output (
         bit_numbers = 16:23
         value = word_out_16_23
         )
 
     // Input words
-    iochannel/datapixx_word_input (
+    datapixx_word_input (
         bit_numbers = 0:7
         value = word_in_0_7
         )
-    iochannel/datapixx_word_input (
+    datapixx_word_input (
         bit_numbers = 15:8
         value = word_in_8_15
         )
-    iochannel/datapixx_word_input (
+    datapixx_word_input (
         bit_numbers = 16:23
         value = word_in_16_23
         )
