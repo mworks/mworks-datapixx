@@ -104,7 +104,7 @@ EX_DLL void TPxGetEyePosition_newPoly_valid(float vx[2], float vy[2], float vcoe
 
 EX_DLL int TPxIsDeviceCalibrated(void);
 EX_DLL float TPxFilterFunctionLevelOne(float* x2, float* x1, float* x);
-EX_DLL void TPxTestlibtpxFunctions();
+EX_DLL void TPxTestlibtpxFunctions(void);
 
 EX_DLL void TPxBestPolyFinishCalibration(void);
 EX_DLL void TPxBestPolyGetEyePosition(float* eyeReturn);
