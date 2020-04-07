@@ -9,6 +9,9 @@
 #ifndef DATAPixx_Prefix_pch
 #define DATAPixx_Prefix_pch
 
+// Tell libdpx sources that we're using libusb 1.0
+#define FACTORY_10
+
 #ifdef __cplusplus
 
 #include <boost/endian/arithmetic.hpp>

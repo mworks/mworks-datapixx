@@ -39,6 +39,7 @@
 		E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */; };
 		E15447C2242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */; };
 		E160692924353A3B00B717EB /* MWComponents.yaml in Resources */ = {isa = PBXBuildFile; fileRef = E160692824353A1200B717EB /* MWComponents.yaml */; };
+		E160ABC3243CB9E5008D367E /* libusb-1.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E160ABC2243CB9E5008D367E /* libusb-1.0.a */; };
 		E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */; };
 		E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */; };
 		E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */; };
@@ -48,10 +49,6 @@
 		E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1CB76F72419204100E9D2A3 /* DATAPixxWordInputChannel.cpp */; };
 		E1CB76FC2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1CB76FA2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp */; };
 		E1CB7700241930D600E9D2A3 /* DATAPixx in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1CB76FE2419306500E9D2A3 /* DATAPixx */; };
-		E1E93D7F2405A933002374D3 /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D6C2405A933002374D3 /* usb.c */; };
-		E1E93D822405A933002374D3 /* darwin.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D722405A933002374D3 /* darwin.c */; };
-		E1E93D842405A933002374D3 /* error.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D742405A933002374D3 /* error.c */; };
-		E1E93D852405A933002374D3 /* descriptors.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D762405A933002374D3 /* descriptors.c */; };
 		E1E93D882405A933002374D3 /* libdpx.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D7A2405A933002374D3 /* libdpx.c */; };
 		E1E93D932405AB27002374D3 /* DATAPixx.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */; };
 		E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */; };
@@ -110,6 +107,7 @@
 		E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogInputChannel.cpp; sourceTree = "<group>"; };
 		E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogInputChannel.hpp; sourceTree = "<group>"; };
 		E160692824353A1200B717EB /* MWComponents.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = MWComponents.yaml; sourceTree = "<group>"; };
+		E160ABC2243CB9E5008D367E /* libusb-1.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libusb-1.0.a"; path = "/Library/Application Support/MWorks/Developer/lib/libusb-1.0.a"; sourceTree = "<absolute>"; };
 		E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDigitalInputChannel.cpp; sourceTree = "<group>"; };
 		E171499B241166FD0071C8FA /* DATAPixxDigitalInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDigitalInputChannel.hpp; sourceTree = "<group>"; };
 		E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxBitInputChannel.cpp; sourceTree = "<group>"; };
@@ -131,14 +129,6 @@
 		E1E93D612405A0B6002374D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS_Plugin.xcconfig; sourceTree = "<group>"; };
 		E1E93D692405A561002374D3 /* macOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS.xcconfig; sourceTree = "<group>"; };
-		E1E93D6B2405A933002374D3 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
-		E1E93D6C2405A933002374D3 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
-		E1E93D6E2405A933002374D3 /* usbi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = usbi.h; sourceTree = "<group>"; };
-		E1E93D6F2405A933002374D3 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		E1E93D722405A933002374D3 /* darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = darwin.c; sourceTree = "<group>"; };
-		E1E93D742405A933002374D3 /* error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = error.c; sourceTree = "<group>"; };
-		E1E93D752405A933002374D3 /* usb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = usb.h; sourceTree = "<group>"; };
-		E1E93D762405A933002374D3 /* descriptors.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = descriptors.c; sourceTree = "<group>"; };
 		E1E93D7A2405A933002374D3 /* libdpx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libdpx.c; sourceTree = "<group>"; };
 		E1E93D7C2405A933002374D3 /* libdpx_i.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdpx_i.h; sourceTree = "<group>"; };
 		E1E93D7E2405A933002374D3 /* libdpx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdpx.h; sourceTree = "<group>"; };
@@ -157,6 +147,7 @@
 				E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */,
 				E1E93DA12405B16F002374D3 /* CoreFoundation.framework in Frameworks */,
 				E1E93D9F2405B15D002374D3 /* IOKit.framework in Frameworks */,
+				E160ABC3243CB9E5008D367E /* libusb-1.0.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -237,7 +228,6 @@
 			children = (
 				E1E93D672405A535002374D3 /* External Config */,
 				E1E93D782405A933002374D3 /* libdpx */,
-				E1E93D6A2405A933002374D3 /* libusb */,
 				E1E93D602405A0B6002374D3 /* DATAPixx */,
 				E1E93D9B2405AE4D002374D3 /* Frameworks */,
 				E1E93D5F2405A0B6002374D3 /* Products */,
@@ -275,21 +265,6 @@
 			path = "/Library/Application Support/MWorks/Developer/Xcode";
 			sourceTree = "<absolute>";
 		};
-		E1E93D6A2405A933002374D3 /* libusb */ = {
-			isa = PBXGroup;
-			children = (
-				E1E93D6F2405A933002374D3 /* config.h */,
-				E1E93D722405A933002374D3 /* darwin.c */,
-				E1E93D762405A933002374D3 /* descriptors.c */,
-				E1E93D6B2405A933002374D3 /* error.h */,
-				E1E93D742405A933002374D3 /* error.c */,
-				E1E93D752405A933002374D3 /* usb.h */,
-				E1E93D6C2405A933002374D3 /* usb.c */,
-				E1E93D6E2405A933002374D3 /* usbi.h */,
-			);
-			path = libusb;
-			sourceTree = "<group>";
-		};
 		E1E93D782405A933002374D3 /* libdpx */ = {
 			isa = PBXGroup;
 			children = (
@@ -316,6 +291,7 @@
 				E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */,
 				E1E93DA02405B16F002374D3 /* CoreFoundation.framework */,
 				E1E93D9E2405B15D002374D3 /* IOKit.framework */,
+				E160ABC2243CB9E5008D367E /* libusb-1.0.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -396,7 +372,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1E93D852405A933002374D3 /* descriptors.c in Sources */,
 				E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */,
 				E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */,
 				E197C02F2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp in Sources */,
@@ -410,10 +385,7 @@
 				E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */,
 				E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */,
 				E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */,
-				E1E93D842405A933002374D3 /* error.c in Sources */,
 				E1E93D882405A933002374D3 /* libdpx.c in Sources */,
-				E1E93D822405A933002374D3 /* darwin.c in Sources */,
-				E1E93D7F2405A933002374D3 /* usb.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,6 +417,10 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DATAPixx/DATAPixx-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(MW_INCLUDE_DIR)/libusb-1.0",
+				);
 				INFOPLIST_FILE = DATAPixx/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.mworks-project.DATAPixx";
 				PRODUCT_NAME = "$(TARGET_NAME)";

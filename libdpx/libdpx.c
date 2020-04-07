@@ -35,7 +35,7 @@
 #include <ctype.h>
 
 #include "libdpx.h"		// user API.  Make sure to include libdpx src folder in user include path
-//#include "libusb.h"
+#include "libusb.h"
 
 
 
@@ -2780,7 +2780,7 @@ int EZWriteEP1Tram(unsigned char* txTram, unsigned char expectedRxTram, int expe
 #ifdef USE_LIB01
 			if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 1, (char*)txTram, packetSize, 1000) == packetSize)
 #else
-			if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 1, (char*)txTram, packetSize, &packetSizeWrite, 1000) == 0) &&
+			if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 1, txTram, packetSize, &packetSizeWrite, 1000) == 0) &&
 				(packetSize == packetSizeWrite))
 #endif
 				break;
@@ -2858,7 +2858,7 @@ int EZReadEP1Tram(unsigned char expectedTram, int expectedLen)
 #ifdef USE_LIB01
 				packetLength = usb_bulk_read(dpxDeviceTable[dpxSysDevsel].dpxHdl, 0x81, packet, 64, 1000);
 #else
-				libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 0x81, packet, 64, &packetLength, 1000);
+				libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 0x81, (unsigned char *)packet, 64, &packetLength, 1000);
 #endif
 				if (packetLength > 0)
 					break;
@@ -2973,7 +2973,7 @@ int EZWriteEP2Tram(unsigned char* txTram, unsigned char expectedRxTram, int expe
 #ifdef USE_LIB01
 			if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)txTram, packetSize, 1000) == packetSize)
 #else
-			if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)txTram, packetSize, &packetSizeWrite, 1000) == 0) &&
+			if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, txTram, packetSize, &packetSizeWrite, 1000) == 0) &&
 				(packetSize == packetSizeWrite))
 #endif
 				break;
@@ -3023,7 +3023,7 @@ int EZReadEP6Tram(unsigned char expectedTram, int expectedLen)
 #ifdef USE_LIB01
 		packetLength = usb_bulk_read(dpxDeviceTable[dpxSysDevsel].dpxHdl, 0x86, (char*)ep6in_Tram, reqLength, timeout);
 #else
-		libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 0x86, (char*)ep6in_Tram, reqLength, &packetLength, timeout);
+		libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 0x86, ep6in_Tram, reqLength, &packetLength, timeout);
 #endif
 		if (packetLength == reqLength)
 			break;
@@ -5020,8 +5020,8 @@ void DPxUsbScan(int doPrint)
 	ssize_t cnt;
 	int i = 0;
 	struct libusb_device *dev;
-	struct libusb_device_descriptor libusb_desc;
-	libusb_device_handle *device = NULL;
+	//struct libusb_device_descriptor libusb_desc;
+	//libusb_device_handle *device = NULL;
 #endif
 
     // We are going to be accessing the USB device.
@@ -5480,7 +5480,10 @@ void DPxSetDebug(int level)
 #ifdef USE_LIB01
 	usb_set_debug(level > 0 ? level - 1 : 0);
 #else
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	libusb_set_debug(NULL, level > 0 ? level - 1 : 0);
+#pragma clang diagnostic pop
 #endif
 }
 
@@ -6759,7 +6762,7 @@ void DPxSetI2cReg(int regAddr, int regValue)
 #ifdef USE_LIB01
 		if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, 1000) == packetSize)
 #else
-		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
+		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
 			(packetSize == packetSizeWrite))
 #endif
 			break;
@@ -6814,7 +6817,7 @@ int DPxGetI2cReg(int regAddr)
 #ifdef USE_LIB01
 		if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, 1000) == packetSize)
 #else
-		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
+		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
 			(packetSize == packetSizeWrite))
 #endif
 			break;
@@ -6874,7 +6877,7 @@ void DPxSetLuxRegInt(int regAddr, int regValue)
 #ifdef USE_LIB01
 		if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, 1000) == packetSize)
 #else
-		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
+		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
 			(packetSize == packetSizeWrite))
 #endif
 			break;
@@ -6919,7 +6922,7 @@ int DPxGetLuxReg(int regAddr)
 #ifdef USE_LIB01
 		if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, 1000) == packetSize)
 #else
-		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
+		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
 			(packetSize == packetSizeWrite))
 #endif
 			break;
@@ -11931,7 +11934,7 @@ void DPxGetVidClutTransparencyColor(UInt16* red, UInt16* green, UInt16* blue)
 #ifdef USE_LIB01
 		if (usb_bulk_write(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, 1000) == packetSize)
 #else
-		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, (char*)ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
+		if ((libusb_bulk_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, 2, ep2out_Tram, packetSize, &packetSizeWrite, 1000) == 0) &&
 			(packetSize == packetSizeWrite))
 #endif
 			break;
@@ -15108,7 +15111,7 @@ void FX3TransferEP0(unsigned char type, unsigned char opcode, unsigned long addr
 {
     // Caller is responsible for ensuring valid dpxSysDevsel
 #ifdef USE_LIB01
-		usb_control_msg(dpxDeviceTable[dpxSysDevsel].dpxHdl, type, opcode, addr & 0xffff, addr >> 16, (char*)buf, len, 1000);
+		usb_control_msg(dpxDeviceTable[dpxSysDevsel].dpxHdl, type, opcode, addr & 0xffff, addr >> 16, (unsigned char*)buf, len, 1000);
 #else
 		libusb_control_transfer(dpxDeviceTable[dpxSysDevsel].dpxHdl, type, opcode, addr & 0xffff, addr >> 16, (unsigned char*)buf, len, 1000);
 #endif
