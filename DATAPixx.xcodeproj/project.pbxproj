@@ -419,7 +419,7 @@
 				GCC_PREFIX_HEADER = "DATAPixx/DATAPixx-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(MW_INCLUDE_DIR)/libusb-1.0",
+					"\"$(MW_INCLUDE_DIR)/libusb-1.0\"",
 				);
 				INFOPLIST_FILE = DATAPixx/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.mworks-project.DATAPixx";
