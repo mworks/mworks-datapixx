@@ -4,6 +4,7 @@
 name: DATAPixx Device
 signature: iodevice/datapixx
 isa: IODevice
+platform: macos
 allowed_child: DATAPixx Channel
 description: >
     Interface to a `DATAPixx <https://vpixx.com/our-products/video-i-o-hub/>`_
@@ -98,6 +99,7 @@ parameters:
 name: DATAPixx Channel
 abstract: yes
 isa: IOChannel
+platform: macos
 
 
 ---
