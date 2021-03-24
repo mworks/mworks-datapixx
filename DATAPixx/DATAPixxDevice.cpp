@@ -232,14 +232,10 @@ bool DATAPixxDevice::startDeviceIO() {
         const auto currentTime = clock->getCurrentTimeUS();
         const auto currentDeviceTimeNanos = getDeviceTimeNanos();
         
-        if (haveOutputs()) {
-            initializeOutputs(currentDeviceTimeNanos, currentTime);
-        }
-        if (haveInputs()) {
-            initializeInputs(currentDeviceTimeNanos, currentTime);
-            if (!readInputsTask) {
-                startReadInputsTask();
-            }
+        initializeOutputs(currentDeviceTimeNanos, currentTime);
+        initializeInputs(currentDeviceTimeNanos, currentTime);
+        if (!readInputsTask) {
+            startReadInputsTask();
         }
         
         running = true;

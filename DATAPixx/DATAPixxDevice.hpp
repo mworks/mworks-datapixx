@@ -93,10 +93,8 @@ private:
     bool startDigitalOutputsOnInputPort();
     bool stopDigitalOutputsOnInputPort();
     
-    bool haveOutputs() const { return (haveAnalogOutputs() || haveDigitalOutputs() || haveDigitalOutputsOnInputPort()); }
     void initializeOutputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     
-    bool haveInputs() const { return (haveAnalogInputs() || haveDigitalInputs()); }
     void initializeInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     void startReadInputsTask();
     void stopReadInputsTask();
