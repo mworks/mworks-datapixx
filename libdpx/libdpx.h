@@ -198,6 +198,7 @@ EX_DLL int		DPxIsViewpixxEeg(void);					// Returns non-0 if DATAPixx is embedded
 EX_DLL int		DPxIsPropixxCtrl(void);                 // Returns non-0 if DATAPixx is embedded in a PROPixx controller
 EX_DLL int		DPxIsPropixx(void);                     // Returns non-0 for a PROPixx projector (not controller)
 EX_DLL int		DPxIsTrackpixxCtrl(void);				// Returns non-0 for a TRACKPixx Controller
+EX_DLL int		DPxIsSysDevSelTrackpixxCtrl(void);
 EX_DLL int		DPxIsTrackpixxBridge(void);				// Returns non-0 for a TRACKPixx Bridge
 EX_DLL int		DPxIsTrackpixx(void);					// Returns non-0 for a TRACKPixx eye tracker
 EX_DLL unsigned DPxGetRamSize(void);					// Get the number of bytes of RAM in the VPixx device
