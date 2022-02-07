@@ -288,8 +288,12 @@ bool DATAPixxDevice::configureDevice() {
                                   "please use a digital output on the input port instead");
         }
         DPxEnableDoutPixelMode();
-    } else {
+    } else if (DPxIsDoutPixelMode()) {
         DPxDisableDoutPixelMode();
+    } else {
+        // Pixel mode is either not enabled or not supported.  In the latter case, DPxIsDoutPixelMode will
+        // set an error, so call DPxClearError to clear it.
+        DPxClearError();
     }
     if (logError("Cannot configure DATAPixx digital output pixel mode")) {
         return false;
@@ -297,8 +301,12 @@ bool DATAPixxDevice::configureDevice() {
     
     if (enableDigitalOutputVSYNCMode) {
         DPxEnableDoutVsyncMode();
-    } else {
+    } else if (DPxIsDoutVsyncMode()) {
         DPxDisableDoutVsyncMode();
+    } else {
+        // VSYNC mode is either not enabled or not supported.  In the latter case, DPxIsDoutVsyncMode will
+        // set an error, so call DPxClearError to clear it.
+        DPxClearError();
     }
     if (logError("Cannot configure DATAPixx digital output VSYNC mode")) {
         return false;
