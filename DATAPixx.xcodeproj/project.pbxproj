@@ -37,6 +37,7 @@
 		E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E105E72624229DDC00DA4182 /* DATAPixxAnalogChannel.cpp */; };
 		E105E72B2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E105E7292422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp */; };
 		E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */; };
+		E1364AA527BD7EE8008BEB1D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1364AA427BD7EE8008BEB1D /* Security.framework */; };
 		E15447C2242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */; };
 		E160692924353A3B00B717EB /* MWComponents.yaml in Resources */ = {isa = PBXBuildFile; fileRef = E160692824353A1200B717EB /* MWComponents.yaml */; };
 		E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */; };
@@ -103,6 +104,7 @@
 		E105E72A2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogOutputChannel.hpp; sourceTree = "<group>"; };
 		E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDevice.cpp; sourceTree = "<group>"; };
 		E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDevice.hpp; sourceTree = "<group>"; };
+		E1364AA427BD7EE8008BEB1D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogInputChannel.cpp; sourceTree = "<group>"; };
 		E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogInputChannel.hpp; sourceTree = "<group>"; };
 		E160692824353A1200B717EB /* MWComponents.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = MWComponents.yaml; sourceTree = "<group>"; };
@@ -145,6 +147,7 @@
 				E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */,
 				E1E93DA12405B16F002374D3 /* CoreFoundation.framework in Frameworks */,
 				E1E93D9F2405B15D002374D3 /* IOKit.framework in Frameworks */,
+				E1364AA527BD7EE8008BEB1D /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,6 +291,7 @@
 				E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */,
 				E1E93DA02405B16F002374D3 /* CoreFoundation.framework */,
 				E1E93D9E2405B15D002374D3 /* IOKit.framework */,
+				E1364AA427BD7EE8008BEB1D /* Security.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
