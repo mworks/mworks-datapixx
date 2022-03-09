@@ -8,8 +8,6 @@
 
 #include "DATAPixxDevice.hpp"
 
-#include "libdpx.h"
-
 
 BEGIN_NAMESPACE_MW
 

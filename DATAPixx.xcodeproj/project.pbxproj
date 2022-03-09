@@ -37,9 +37,10 @@
 		E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E105E72624229DDC00DA4182 /* DATAPixxAnalogChannel.cpp */; };
 		E105E72B2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E105E7292422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp */; };
 		E11AEA922406E3CA00AC3E8B /* DATAPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */; };
-		E1364AA527BD7EE8008BEB1D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1364AA427BD7EE8008BEB1D /* Security.framework */; };
 		E15447C2242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */; };
 		E160692924353A3B00B717EB /* MWComponents.yaml in Resources */ = {isa = PBXBuildFile; fileRef = E160692824353A1200B717EB /* MWComponents.yaml */; };
+		E16CF6A82657F4E000A2F2D4 /* libdpx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E16CF6A72657F4E000A2F2D4 /* libdpx.dylib */; };
+		E16CF6AB2657FA2200A2F2D4 /* libdpx.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = E16CF6A72657F4E000A2F2D4 /* libdpx.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */; };
 		E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */; };
 		E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C02A241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp */; };
@@ -49,12 +50,9 @@
 		E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1CB76F72419204100E9D2A3 /* DATAPixxWordInputChannel.cpp */; };
 		E1CB76FC2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1CB76FA2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp */; };
 		E1CB7700241930D600E9D2A3 /* DATAPixx in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1CB76FE2419306500E9D2A3 /* DATAPixx */; };
-		E1E93D882405A933002374D3 /* libdpx.c in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D7A2405A933002374D3 /* libdpx.c */; };
 		E1E93D932405AB27002374D3 /* DATAPixx.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */; };
 		E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */; };
 		E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */; };
-		E1E93D9F2405B15D002374D3 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93D9E2405B15D002374D3 /* IOKit.framework */; };
-		E1E93DA12405B16F002374D3 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93DA02405B16F002374D3 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +73,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		E16CF6AA2657FA0E00A2F2D4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E16CF6AB2657FA2200A2F2D4 /* libdpx.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1CB76FF241930CE00E9D2A3 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -104,10 +112,11 @@
 		E105E72A2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogOutputChannel.hpp; sourceTree = "<group>"; };
 		E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDevice.cpp; sourceTree = "<group>"; };
 		E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDevice.hpp; sourceTree = "<group>"; };
-		E1364AA427BD7EE8008BEB1D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		E12897FE27D8F9FE009AA016 /* libdpx_i.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libdpx_i.h; sourceTree = "<group>"; };
 		E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogInputChannel.cpp; sourceTree = "<group>"; };
 		E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogInputChannel.hpp; sourceTree = "<group>"; };
 		E160692824353A1200B717EB /* MWComponents.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = MWComponents.yaml; sourceTree = "<group>"; };
+		E16CF6A72657F4E000A2F2D4 /* libdpx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdpx.dylib; path = "/Library/Application Support/VPixx Technologies/Software Tools/libdpx/libdpx/lib/libdpx.dylib"; sourceTree = "<absolute>"; };
 		E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDigitalInputChannel.cpp; sourceTree = "<group>"; };
 		E171499B241166FD0071C8FA /* DATAPixxDigitalInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDigitalInputChannel.hpp; sourceTree = "<group>"; };
 		E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxBitInputChannel.cpp; sourceTree = "<group>"; };
@@ -129,14 +138,9 @@
 		E1E93D612405A0B6002374D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS_Plugin.xcconfig; sourceTree = "<group>"; };
 		E1E93D692405A561002374D3 /* macOS.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS.xcconfig; sourceTree = "<group>"; };
-		E1E93D7A2405A933002374D3 /* libdpx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libdpx.c; sourceTree = "<group>"; };
-		E1E93D7C2405A933002374D3 /* libdpx_i.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdpx_i.h; sourceTree = "<group>"; };
-		E1E93D7E2405A933002374D3 /* libdpx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdpx.h; sourceTree = "<group>"; };
 		E1E93D962405AC10002374D3 /* DATAPixx-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DATAPixx-Prefix.pch"; sourceTree = "<group>"; };
 		E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxPlugin.cpp; sourceTree = "<group>"; };
 		E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MWorksCore.framework; path = /Library/Frameworks/MWorksCore.framework; sourceTree = "<absolute>"; };
-		E1E93D9E2405B15D002374D3 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
-		E1E93DA02405B16F002374D3 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,9 +149,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */,
-				E1E93DA12405B16F002374D3 /* CoreFoundation.framework in Frameworks */,
-				E1E93D9F2405B15D002374D3 /* IOKit.framework in Frameworks */,
-				E1364AA527BD7EE8008BEB1D /* Security.framework in Frameworks */,
+				E16CF6A82657F4E000A2F2D4 /* libdpx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,7 +229,6 @@
 			isa = PBXGroup;
 			children = (
 				E1E93D672405A535002374D3 /* External Config */,
-				E1E93D782405A933002374D3 /* libdpx */,
 				E1E93D602405A0B6002374D3 /* DATAPixx */,
 				E1E93D9B2405AE4D002374D3 /* Frameworks */,
 				E1E93D5F2405A0B6002374D3 /* Products */,
@@ -246,6 +247,7 @@
 			isa = PBXGroup;
 			children = (
 				E197C028241036DB00BA6D8D /* Channels */,
+				E12897FE27D8F9FE009AA016 /* libdpx_i.h */,
 				E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */,
 				E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */,
 				E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */,
@@ -265,16 +267,6 @@
 			path = "/Library/Application Support/MWorks/Developer/Xcode";
 			sourceTree = "<absolute>";
 		};
-		E1E93D782405A933002374D3 /* libdpx */ = {
-			isa = PBXGroup;
-			children = (
-				E1E93D7E2405A933002374D3 /* libdpx.h */,
-				E1E93D7A2405A933002374D3 /* libdpx.c */,
-				E1E93D7C2405A933002374D3 /* libdpx_i.h */,
-			);
-			path = libdpx;
-			sourceTree = "<group>";
-		};
 		E1E93D9A2405AD91002374D3 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -289,9 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */,
-				E1E93DA02405B16F002374D3 /* CoreFoundation.framework */,
-				E1E93D9E2405B15D002374D3 /* IOKit.framework */,
-				E1364AA427BD7EE8008BEB1D /* Security.framework */,
+				E16CF6A72657F4E000A2F2D4 /* libdpx.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -306,6 +296,8 @@
 				E1E93D5A2405A0B6002374D3 /* Sources */,
 				E1E93D5B2405A0B6002374D3 /* Frameworks */,
 				E1E93D5C2405A0B6002374D3 /* Resources */,
+				E16CF6AA2657FA0E00A2F2D4 /* CopyFiles */,
+				E16CF6A92657F7E000A2F2D4 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -367,6 +359,27 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		E16CF6A92657F7E000A2F2D4 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/xcrun install_name_tool -change \\\n  \"$(/usr/bin/xcrun otool -D \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/libdpx.dylib\" | /usr/bin/tail -n 1)\" \\\n  \"@loader_path/../Frameworks/libdpx.dylib\" \\\n  \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		E1E93D5A2405A0B6002374D3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -385,7 +398,6 @@
 				E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */,
 				E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */,
 				E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */,
-				E1E93D882405A933002374D3 /* libdpx.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -415,16 +427,21 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */;
 			buildSettings = {
+				ARCHS = x86_64;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DATAPixx/DATAPixx-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
+					"$(LOCAL_LIBRARY_DIR)/Application\\ Support/VPixx\\ Technologies/Software\\ Tools/libdpx/libdpx/include",
 					"$(inherited)",
-					"\"$(MW_INCLUDE_DIR)/$(CURRENT_ARCH)/libusb-1.0\"",
 				);
 				INFOPLIST_FILE = DATAPixx/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(LOCAL_LIBRARY_DIR)/Application\\ Support/VPixx\\ Technologies/Software\\ Tools/libdpx/libdpx/lib",
+					"$(inherited)",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
-					"-lusb-1.0",
+					"-headerpad_max_install_names",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.mworks-project.DATAPixx";
 				PRODUCT_NAME = "$(TARGET_NAME)";

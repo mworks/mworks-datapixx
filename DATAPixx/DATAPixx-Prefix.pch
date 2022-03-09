@@ -9,8 +9,8 @@
 #ifndef DATAPixx_Prefix_pch
 #define DATAPixx_Prefix_pch
 
-// Tell libdpx sources that we're using libusb 1.0
-#define FACTORY_10
+#include <libdpx.h>
+#include "libdpx_i.h"
 
 #ifdef __cplusplus
 
