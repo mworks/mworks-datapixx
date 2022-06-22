@@ -12,39 +12,6 @@
 BEGIN_NAMESPACE_MW
 
 
-BEGIN_NAMESPACE()
-
-
-inline bool logError(const char *msg) {
-    const auto error = DPxGetError();
-    if (error == DPX_SUCCESS) {
-        return false;
-    }
-    merror(M_IODEVICE_MESSAGE_DOMAIN, "%s: %s (error = %d)", msg, DPxGetErrorString(), error);
-    DPxClearError();
-    return true;
-}
-
-
-inline bool logConfigurationFailure() {
-    DPxUpdateRegCache();
-    return logError("Cannot update DATAPixx configuration");
-}
-
-
-inline MWTime getDeviceTimeNanos() {
-    unsigned int nanoHigh32, nanoLow32;
-    DPxGetNanoTime(&nanoHigh32, &nanoLow32);
-    if (logError("Cannot retrieve current DATAPixx device time")) {
-        return 0;
-    }
-    return MWTime((std::uint64_t(nanoHigh32) << 32) | std::uint64_t(nanoLow32));
-}
-
-
-END_NAMESPACE()
-
-
 const std::string DATAPixxDevice::UPDATE_INTERVAL("update_interval");
 const std::string DATAPixxDevice::CLOCK_OFFSET_NANOS("clock_offset_nanos");
 const std::string DATAPixxDevice::ENABLE_DOUT_PIXEL_MODE("enable_dout_pixel_mode");
@@ -62,7 +29,7 @@ void DATAPixxDevice::describeComponent(ComponentInfo &info) {
     
     info.setSignature("iodevice/datapixx");
     
-    info.addParameter(UPDATE_INTERVAL, true);
+    info.addParameter(UPDATE_INTERVAL);
     info.addParameter(CLOCK_OFFSET_NANOS, false);
     info.addParameter(ENABLE_DOUT_PIXEL_MODE, "NO");
     info.addParameter(ENABLE_DOUT_VSYNC_MODE, "NO");
@@ -117,8 +84,7 @@ DATAPixxDevice::DATAPixxDevice(const ParameterValueMap &parameters) :
 
 
 DATAPixxDevice::~DATAPixxDevice() {
-    DPxClose();
-    logError("Cannot close DATAPixx device");
+    DPxClose(), logError("Cannot close DATAPixx device");
 }
 
 
@@ -167,35 +133,15 @@ bool DATAPixxDevice::initialize() {
     
     mprintf(M_IODEVICE_MESSAGE_DOMAIN, "Opened DATAPixx device (ID = %d)", DPxGetID());
     
-    if ((DPxStopAllScheds(), logError("Cannot stop existing DATAPixx schedules")) ||
-        (DPxDisableAdcFreeRun(), logError("Cannot disable DATAPixx ADC free run")) ||
-        (DPxDisableDinLogEvents(), logError("Cannot disable DATAPixx digital input event logging")) ||
+    if (!initializeDevice() ||
         logConfigurationFailure())
     {
         return false;
     }
     
-    if (!configureDevice()) {
-        return false;
-    }
-    if (haveAnalogInputs() && !configureAnalogInputs()) {
-        return false;
-    }
-    if (haveAnalogOutputs() && !configureAnalogOutputs()) {
-        return false;
-    }
-    if (haveDigitalInputs() && !configureDigitalInputs()) {
-        return false;
-    }
-    if (haveDigitalOutputs() && !configureDigitalOutputs()) {
-        return false;
-    }
-    if (haveDigitalOutputsOnInputPort() && !configureDigitalOutputsOnInputPort()) {
-        return false;
-    }
-    
-    // Commit all configuration changes
-    if (logConfigurationFailure()) {
+    if (!configureDevice() ||
+        logConfigurationFailure())
+    {
         return false;
     }
     
@@ -207,23 +153,9 @@ bool DATAPixxDevice::startDeviceIO() {
     lock_guard lock(mutex);
     
     if (!running) {
-        if (haveAnalogOutputs() && !startAnalogOutputs()) {
-            return false;
-        }
-        if (haveAnalogInputs() && !startAnalogInputs()) {
-            return false;
-        }
-        if (haveDigitalOutputs() && !startDigitalOutputs()) {
-            return false;
-        }
-        if (haveDigitalOutputsOnInputPort() && !startDigitalOutputsOnInputPort()) {
-            return false;
-        }
-        if (haveDigitalInputs() && !startDigitalInputs()) {
-            return false;
-        }
-        
-        if (logConfigurationFailure()) {
+        if (!startDevice() ||
+            logConfigurationFailure())
+        {
             return false;
         }
         
@@ -251,29 +183,26 @@ bool DATAPixxDevice::stopDeviceIO() {
             stopReadInputsTask();
         }
         
-        if (haveDigitalInputs() && !stopDigitalInputs()) {
-            return false;
-        }
-        if (haveDigitalOutputsOnInputPort() && !stopDigitalOutputsOnInputPort()) {
-            return false;
-        }
-        if (haveDigitalOutputs() && !stopDigitalOutputs()) {
-            return false;
-        }
-        if (haveAnalogInputs() && !stopAnalogInputs()) {
-            return false;
-        }
-        if (haveAnalogOutputs() && !stopAnalogOutputs()) {
-            return false;
-        }
-        
-        if (logConfigurationFailure()) {
+        if (!stopDevice() ||
+            logConfigurationFailure())
+        {
             return false;
         }
         
         running = false;
     }
     
+    return true;
+}
+
+
+bool DATAPixxDevice::initializeDevice() {
+    if ((DPxStopAllScheds(), logError("Cannot stop existing DATAPixx schedules")) ||
+        (DPxDisableAdcFreeRun(), logError("Cannot disable DATAPixx ADC free run")) ||
+        (DPxDisableDinLogEvents(), logError("Cannot disable DATAPixx digital input event logging")))
+    {
+        return false;
+    }
     return true;
 }
 
@@ -315,7 +244,73 @@ bool DATAPixxDevice::configureDevice() {
         return false;
     }
     
+    if (haveAnalogInputs() && !configureAnalogInputs()) {
+        return false;
+    }
+    if (haveAnalogOutputs() && !configureAnalogOutputs()) {
+        return false;
+    }
+    if (haveDigitalInputs() && !configureDigitalInputs()) {
+        return false;
+    }
+    if (haveDigitalOutputs() && !configureDigitalOutputs()) {
+        return false;
+    }
+    if (haveDigitalOutputsOnInputPort() && !configureDigitalOutputsOnInputPort()) {
+        return false;
+    }
+    
     return true;
+}
+
+
+bool DATAPixxDevice::startDevice() {
+    if (haveAnalogOutputs() && !startAnalogOutputs()) {
+        return false;
+    }
+    if (haveAnalogInputs() && !startAnalogInputs()) {
+        return false;
+    }
+    if (haveDigitalOutputs() && !startDigitalOutputs()) {
+        return false;
+    }
+    if (haveDigitalOutputsOnInputPort() && !startDigitalOutputsOnInputPort()) {
+        return false;
+    }
+    if (haveDigitalInputs() && !startDigitalInputs()) {
+        return false;
+    }
+    return true;
+}
+
+
+bool DATAPixxDevice::stopDevice() {
+    if (haveDigitalInputs() && !stopDigitalInputs()) {
+        return false;
+    }
+    if (haveDigitalOutputsOnInputPort() && !stopDigitalOutputsOnInputPort()) {
+        return false;
+    }
+    if (haveDigitalOutputs() && !stopDigitalOutputs()) {
+        return false;
+    }
+    if (haveAnalogInputs() && !stopAnalogInputs()) {
+        return false;
+    }
+    if (haveAnalogOutputs() && !stopAnalogOutputs()) {
+        return false;
+    }
+    return true;
+}
+
+
+void DATAPixxDevice::readDeviceInputs(MWTime currentDeviceTimeNanos, MWTime currentTime) {
+    if (haveAnalogInputs()) {
+        readAnalogInputs(currentDeviceTimeNanos, currentTime);
+    }
+    if (haveDigitalInputs()) {
+        readDigitalInputs(currentDeviceTimeNanos, currentTime);
+    }
 }
 
 
@@ -383,10 +378,8 @@ bool DATAPixxDevice::configureAnalogInputs() {
     
     // Allocate enough buffer space for two full update intervals worth of samples
     analogInputSampleSize = sizeof(DeviceTimestamp) + analogInputChannels.size() * sizeof(AnalogInputSampleValue);
-    analogInputSampleBufferRAMAddress = nextAvailableRAMAddress;
     analogInputSampleBufferRAMSize = 2 * (updateInterval / analogInputDataInterval) * analogInputSampleSize;
-    nextAvailableRAMAddress += analogInputSampleBufferRAMSize;
-    if (nextAvailableRAMAddress > deviceRAMSize) {
+    if (!allocateDeviceRAM(analogInputSampleBufferRAMSize, analogInputSampleBufferRAMAddress)) {
         merror(M_IODEVICE_MESSAGE_DOMAIN,
                "Required analog input sample buffer size is too large for available DATAPixx device RAM");
         return false;
@@ -562,10 +555,8 @@ bool DATAPixxDevice::configureDigitalInputs() {
         }
     }
     
-    digitalInputEventBufferRAMAddress = nextAvailableRAMAddress;
     digitalInputEventBufferRAMSize = digitalInputEventBufferMaxEvents * sizeof(DigitalInputEvent);
-    nextAvailableRAMAddress += digitalInputEventBufferRAMSize;
-    if (nextAvailableRAMAddress > deviceRAMSize) {
+    if (!allocateDeviceRAM(digitalInputEventBufferRAMSize, digitalInputEventBufferRAMAddress)) {
         merror(M_IODEVICE_MESSAGE_DOMAIN,
                "Requested digital input event buffer size is too large for available DATAPixx device RAM");
         return false;
@@ -921,12 +912,7 @@ void DATAPixxDevice::readInputs() {
     const auto currentTime = clock->getCurrentTimeUS();
     const auto currentDeviceTimeNanos = getDeviceTimeNanos();
     
-    if (haveAnalogInputs()) {
-        readAnalogInputs(currentDeviceTimeNanos, currentTime);
-    }
-    if (haveDigitalInputs()) {
-        readDigitalInputs(currentDeviceTimeNanos, currentTime);
-    }
+    readDeviceInputs(currentDeviceTimeNanos, currentTime);
     
     if (currentTime - lastClockSyncUpdateTime >= clockSyncUpdateInterval) {
         updateClockSync(currentTime);
@@ -1066,14 +1052,6 @@ void DATAPixxDevice::updateClockSync(MWTime currentTime) {
     }
     
     lastClockSyncUpdateTime = currentTime;
-}
-
-
-MWTime DATAPixxDevice::applyClockOffset(MWTime deviceTimeNanos, MWTime currentTime) const {
-    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
-        return currentTime;
-    }
-    return (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
 }
 
 

@@ -295,3 +295,97 @@ parameters:
         value is output by the device
 
 
+---
+
+
+name: TRACKPixx Device
+signature: iodevice/trackpixx
+isa: DATAPixx Device
+description: >
+    Interface to a `TRACKPixx3 <https://vpixx.com/products/trackpixx/>`_ device
+
+
+---
+
+
+name: TRACKPixx Action
+abstract: yes
+isa: Action
+platform: macos
+parameters: 
+  - 
+    name: device
+    required: yes
+    description: Name of the TRACKPixx device
+
+
+---
+
+
+name: TRACKPixx Begin Calibration
+signature: action/trackpixx_begin_calibration
+isa: TRACKPixx Action
+description: >
+    Begin calibration of a `TRACKPixx Device`.
+
+
+---
+
+
+name: TRACKPixx Take Calibration Sample
+signature: action/trackpixx_take_calibration_sample
+isa: TRACKPixx Action
+description: >
+    Take a calibration sample on a `TRACKPixx Device`.
+
+
+---
+
+
+name: TRACKPixx End Calibration
+signature: action/trackpixx_end_calibration
+isa: TRACKPixx Action
+description: >
+    End calibration of a `TRACKPixx Device`.
+
+
+---
+
+
+name: TRACKPixx Load Calibration
+signature: action/trackpixx_load_calibration
+isa: TRACKPixx Action
+description: >
+    Load the calibration saved to a `TRACKPixx Device`.
+
+
+---
+
+
+name: TRACKPixx Begin Pupil Size Calibration
+signature: action/trackpixx_begin_pupil_size_calibration
+isa: TRACKPixx Action
+description: >
+    Begin pupil size calibration on a `TRACKPixx Device`.
+
+
+---
+
+
+name: TRACKPixx End Pupil Size Calibration
+signature: action/trackpixx_end_pupil_size_calibration
+isa: TRACKPixx Action
+description: >
+    End pupil size calibration on a `TRACKPixx Device`.
+
+
+---
+
+
+name: TRACKPixx Load Pupil Size Calibration
+signature: action/trackpixx_load_pupil_size_calibration
+isa: TRACKPixx Action
+description: >
+    Load the pupil size calibration saved to a `TRACKPixx Device`.
+
+

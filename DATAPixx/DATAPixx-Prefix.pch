@@ -10,6 +10,7 @@
 #define DATAPixx_Prefix_pch
 
 #include <libdpx.h>
+#include <libtpx.h>
 
 //
 // Ensure that some constants currently missing from libdpx.h
@@ -33,12 +34,15 @@
 
 #ifdef __cplusplus
 
+#include <cinttypes>
+
 #include <boost/endian/arithmetic.hpp>
 
 #include <MWorksCore/ExpressionVariable.h>
 #include <MWorksCore/IODevice.h>
 #include <MWorksCore/Plugin.h>
 #include <MWorksCore/StandardComponentFactory.h>
+#include <MWorksCore/TrialBuildingBlocks.h>
 
 #endif /* defined(__cplusplus) */
 

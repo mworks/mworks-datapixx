@@ -45,6 +45,25 @@ public:
     bool startDeviceIO() override;
     bool stopDeviceIO() override;
     
+protected:
+    using lock_guard = std::lock_guard<std::recursive_mutex>;
+    
+    static bool logError(const char *msg);
+    static bool logConfigurationFailure(bool updateLocalCache = true);
+    static MWTime getDeviceTimeNanos();
+    
+    MWTime getUpdateInterval() const { return updateInterval; }
+    lock_guard acquireLock() { return lock_guard(mutex); }
+    bool allocateDeviceRAM(unsigned int size, unsigned int &address);
+    MWTime applyClockOffset(MWTime deviceTimeNanos, MWTime currentTime) const;
+    bool isRunning() const { return running; }
+    
+    virtual bool initializeDevice();
+    virtual bool configureDevice();
+    virtual bool startDevice();
+    virtual bool stopDevice();
+    virtual void readDeviceInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
+    
 private:
     struct UniqueDeviceGuard : boost::noncopyable {
         UniqueDeviceGuard();
@@ -63,8 +82,6 @@ private:
     
     static constexpr int digitalOutputVSYNCBitNumber = 23;
     static constexpr MWTime clockSyncUpdateInterval = 1000000;  // One second
-    
-    bool configureDevice();
     
     bool haveAnalogInputs() const { return !(analogInputChannels.empty()); }
     bool configureAnalogInputs();
@@ -103,7 +120,6 @@ private:
     void readDigitalInputs(MWTime currentDeviceTimeNanos, MWTime currentTime);
     
     void updateClockSync(MWTime currentTime);
-    MWTime applyClockOffset(MWTime deviceTimeNanos, MWTime currentTime) const;
     
     const UniqueDeviceGuard uniqueDeviceGuard;
     const MWTime updateInterval;
@@ -119,7 +135,6 @@ private:
     
     const boost::shared_ptr<Clock> clock;
     
-    using lock_guard = std::lock_guard<std::recursive_mutex>;
     lock_guard::mutex_type mutex;
     
     unsigned int deviceRAMSize;
@@ -155,6 +170,52 @@ private:
     bool running;
     
 };
+
+
+inline bool DATAPixxDevice::logError(const char *msg) {
+    const auto error = DPxGetError();
+    if (error == DPX_SUCCESS) {
+        return false;
+    }
+    merror(M_IODEVICE_MESSAGE_DOMAIN, "%s: %s (error = %d)", msg, DPxGetErrorString(), error);
+    DPxClearError();
+    return true;
+}
+
+
+inline bool DATAPixxDevice::logConfigurationFailure(bool updateLocalCache) {
+    if (updateLocalCache) {
+        DPxUpdateRegCache();
+    } else {
+        DPxWriteRegCache();
+    }
+    return logError("Cannot update DATAPixx configuration");
+}
+
+
+inline MWTime DATAPixxDevice::getDeviceTimeNanos() {
+    unsigned int nanoHigh32, nanoLow32;
+    DPxGetNanoTime(&nanoHigh32, &nanoLow32);
+    if (logError("Cannot retrieve current DATAPixx device time")) {
+        return 0;
+    }
+    return MWTime((std::uint64_t(nanoHigh32) << 32) | std::uint64_t(nanoLow32));
+}
+
+
+inline bool DATAPixxDevice::allocateDeviceRAM(unsigned int size, unsigned int &address) {
+    address = nextAvailableRAMAddress;
+    nextAvailableRAMAddress += size;
+    return (nextAvailableRAMAddress <= deviceRAMSize);
+}
+
+
+inline MWTime DATAPixxDevice::applyClockOffset(MWTime deviceTimeNanos, MWTime currentTime) const {
+    if (0 == currentClockOffsetNanos || 0 == deviceTimeNanos) {
+        return currentTime;
+    }
+    return (deviceTimeNanos + currentClockOffsetNanos) / 1000;  // ns to us
+}
 
 
 END_NAMESPACE_MW

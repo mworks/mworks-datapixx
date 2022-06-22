@@ -47,9 +47,11 @@
 		E197C02F2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C02D2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp */; };
 		E197C032241039DA00BA6D8D /* DATAPixxChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C030241039DA00BA6D8D /* DATAPixxChannel.cpp */; };
 		E197C03524103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */; };
+		E1B7A2CF286372E90062FB7A /* TRACKPixxDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1B7A2CD286372E90062FB7A /* TRACKPixxDevice.cpp */; };
 		E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1CB76F72419204100E9D2A3 /* DATAPixxWordInputChannel.cpp */; };
 		E1CB76FC2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1CB76FA2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp */; };
 		E1CB7700241930D600E9D2A3 /* DATAPixx in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1CB76FE2419306500E9D2A3 /* DATAPixx */; };
+		E1D736D728762C0C0068A4BD /* TRACKPixxActions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1D736D528762C0C0068A4BD /* TRACKPixxActions.cpp */; };
 		E1E93D932405AB27002374D3 /* DATAPixx.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */; };
 		E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */; };
 		E1E93D9D2405AE4D002374D3 /* MWorksCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1E93D9C2405AE4D002374D3 /* MWorksCore.framework */; };
@@ -128,11 +130,15 @@
 		E197C031241039DA00BA6D8D /* DATAPixxChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxChannel.hpp; sourceTree = "<group>"; };
 		E197C03324103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxBitOutputChannel.cpp; sourceTree = "<group>"; };
 		E197C03424103C0600BA6D8D /* DATAPixxBitOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxBitOutputChannel.hpp; sourceTree = "<group>"; };
+		E1B7A2CD286372E90062FB7A /* TRACKPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TRACKPixxDevice.cpp; sourceTree = "<group>"; };
+		E1B7A2CE286372E90062FB7A /* TRACKPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TRACKPixxDevice.hpp; sourceTree = "<group>"; };
 		E1CB76F72419204100E9D2A3 /* DATAPixxWordInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxWordInputChannel.cpp; sourceTree = "<group>"; };
 		E1CB76F82419204100E9D2A3 /* DATAPixxWordInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxWordInputChannel.hpp; sourceTree = "<group>"; };
 		E1CB76FA2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxWordOutputChannel.cpp; sourceTree = "<group>"; };
 		E1CB76FB2419278000E9D2A3 /* DATAPixxWordOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxWordOutputChannel.hpp; sourceTree = "<group>"; };
 		E1CB76FE2419306500E9D2A3 /* DATAPixx */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DATAPixx; sourceTree = "<group>"; };
+		E1D736D528762C0C0068A4BD /* TRACKPixxActions.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TRACKPixxActions.cpp; sourceTree = "<group>"; };
+		E1D736D628762C0C0068A4BD /* TRACKPixxActions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TRACKPixxActions.hpp; sourceTree = "<group>"; };
 		E1E93D5E2405A0B6002374D3 /* DATAPixx.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DATAPixx.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1E93D612405A0B6002374D3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = macOS_Plugin.xcconfig; sourceTree = "<group>"; };
@@ -248,6 +254,10 @@
 				E197C028241036DB00BA6D8D /* Channels */,
 				E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */,
 				E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */,
+				E1B7A2CE286372E90062FB7A /* TRACKPixxDevice.hpp */,
+				E1B7A2CD286372E90062FB7A /* TRACKPixxDevice.cpp */,
+				E1D736D628762C0C0068A4BD /* TRACKPixxActions.hpp */,
+				E1D736D528762C0C0068A4BD /* TRACKPixxActions.cpp */,
 				E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */,
 				E1E93D9A2405AD91002374D3 /* Supporting Files */,
 				E1CB76FD2419301400E9D2A3 /* Tests */,
@@ -374,7 +384,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/bin/xcrun install_name_tool -change \\\n  \"$(/usr/bin/xcrun otool -D \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/libdpx.dylib\" | /usr/bin/tail -n 1)\" \\\n  \"@loader_path/../Frameworks/libdpx.dylib\" \\\n  \"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\n";
+			shellScript = "libdpx_path=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}/libdpx.dylib\"\nlibdpx_install_name=\"$(/usr/bin/xcrun otool -D \"$libdpx_path\" | /usr/bin/tail -n 1)\"\nexecutable_path=\"${BUILT_PRODUCTS_DIR}/${EXECUTABLE_PATH}\"\n\nif /usr/bin/xcrun otool -L \"$executable_path\" | /usr/bin/grep -q \"$libdpx_install_name\"\nthen\n    /usr/bin/xcrun install_name_tool -change \\\n        \"$libdpx_install_name\" \\\n        \"@loader_path/../Frameworks/libdpx.dylib\" \\\n        \"$executable_path\"\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -388,12 +398,14 @@
 				E171499C241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp in Sources */,
 				E197C02F2410387F00BA6D8D /* DATAPixxDigitalChannel.cpp in Sources */,
 				E105E72B2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.cpp in Sources */,
+				E1D736D728762C0C0068A4BD /* TRACKPixxActions.cpp in Sources */,
 				E1CB76FC2419278000E9D2A3 /* DATAPixxWordOutputChannel.cpp in Sources */,
 				E1E93D982405AD4F002374D3 /* DATAPixxPlugin.cpp in Sources */,
 				E197C032241039DA00BA6D8D /* DATAPixxChannel.cpp in Sources */,
 				E197C02C241037C200BA6D8D /* DATAPixxDigitalOutputChannel.cpp in Sources */,
 				E197C03524103C0600BA6D8D /* DATAPixxBitOutputChannel.cpp in Sources */,
 				E15447C2242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp in Sources */,
+				E1B7A2CF286372E90062FB7A /* TRACKPixxDevice.cpp in Sources */,
 				E105E72824229DDC00DA4182 /* DATAPixxAnalogChannel.cpp in Sources */,
 				E171499F241167EF0071C8FA /* DATAPixxBitInputChannel.cpp in Sources */,
 				E1CB76F92419204100E9D2A3 /* DATAPixxWordInputChannel.cpp in Sources */,

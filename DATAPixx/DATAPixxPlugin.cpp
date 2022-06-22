@@ -13,6 +13,8 @@
 #include "DATAPixxBitOutputChannel.hpp"
 #include "DATAPixxWordInputChannel.hpp"
 #include "DATAPixxWordOutputChannel.hpp"
+#include "TRACKPixxDevice.hpp"
+#include "TRACKPixxActions.hpp"
 
 
 BEGIN_NAMESPACE_MW
@@ -27,6 +29,14 @@ class DATAPixxPlugin : public Plugin {
         registry->registerFactory<StandardComponentFactory, DATAPixxBitOutputChannel>();
         registry->registerFactory<StandardComponentFactory, DATAPixxWordInputChannel>();
         registry->registerFactory<StandardComponentFactory, DATAPixxWordOutputChannel>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxDevice>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxBeginCalibrationAction>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxTakeCalibrationSampleAction>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxEndCalibrationAction>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxLoadCalibrationAction>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxBeginPupilSizeCalibrationAction>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxEndPupilSizeCalibrationAction>();
+        registry->registerFactory<StandardComponentFactory, TRACKPixxLoadPupilSizeCalibrationAction>();
     }
 };
 

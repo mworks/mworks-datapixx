@@ -1,0 +1,196 @@
+var show_overlay = true
+var distance = 100 // cm
+var tracker_window_brightness = 200
+var ir_illuminator_intensity = 8
+var iris_expected_size = 100 // pixels
+var fixation_speed = 20.0
+var fixation_samples = 5
+var saccade_speed = 60.0
+var saccade_samples = 5
+var tracker_time_seconds = 0.0
+var screen_lx = 0.0
+var screen_ly = 0.0
+var pupil_size_l = 0.0
+var screen_rx = 0.0
+var screen_ry = 0.0
+var pupil_size_r = 0.0
+var blink_l = false
+var blink_r = false
+var fixation_l = false
+var fixation_r = false
+var saccade_l = false
+var saccade_r = false
+var raw_lx = 0.0
+var raw_ly = 0.0
+var raw_rx = 0.0
+var raw_ry = 0.0
+
+
+trackpixx trackpixx (
+    show_overlay = show_overlay
+    distance = distance
+    lens_type = '50mm'
+    tracker_window_brightness = tracker_window_brightness
+    ir_illuminator_intensity = ir_illuminator_intensity
+    iris_expected_size = iris_expected_size
+    fixation_speed = fixation_speed
+    fixation_samples = fixation_samples
+    saccade_speed = saccade_speed
+    saccade_samples = saccade_samples
+    tracker_time_seconds = tracker_time_seconds
+    screen_lx = screen_lx
+    screen_ly = screen_ly
+    pupil_size_l = pupil_size_l
+    screen_rx = screen_rx
+    screen_ry = screen_ry
+    pupil_size_r = pupil_size_r
+    blink_l = blink_l
+    blink_r = blink_r
+    fixation_l = fixation_l
+    fixation_r = fixation_r
+    saccade_l = saccade_l
+    saccade_r = saccade_r
+    raw_lx = raw_lx
+    raw_ly = raw_ly
+    raw_rx = raw_rx
+    raw_ry = raw_ry
+    update_interval = 3ms
+    )
+
+
+stimulus_display (background_color = 0,0,0)
+
+blank_screen white_bg (color = 1,1,1)
+
+
+var cx = 0.0
+var cy = 0.0
+%define cal_fraction = 0.65
+var dx = 0.5 * cal_fraction * (display_bounds('right') - display_bounds('left'))
+var dy = 0.5 * cal_fraction * (display_bounds('top') - display_bounds('bottom'))
+var cal_points = [
+    [cx, cy],
+    [cx, cy+dy],
+    [cx+dx, cy],
+    [cx, cy-dy],
+    [cx-dx, cy],
+    [cx+dx, cy+dy],
+    [cx-dx, cy+dy],
+    [cx+dx, cy-dy],
+    [cx-dx, cy-dy],
+    [cx+dx/2, cy+dy/2],
+    [cx-dx/2, cy+dy/2],
+    [cx-dx/2, cy-dy/2],
+    [cx+dx/2, cy-dy/2]
+]
+var num_cal_points = size(cal_points)
+var current_cal_point = 0
+
+var fixation_color = [0,1,0]
+var saccade_color = [1,0,0]
+var blink_color = [0,0,1]
+var default_color = [0.5, 0.5, 0.5]
+
+var cal_target_color = default_color
+var cal_target_size = 1.0
+var cal_target_pos_x = 0.0
+var cal_target_pos_y = 0.0
+
+circle cal_target (
+    color = cal_target_color[0], cal_target_color[1], cal_target_color[2]
+    x_size = cal_target_size
+    x_position = cal_target_pos_x
+    y_position = cal_target_pos_y
+    )
+
+render_actions move_target_to_gaze_location {
+    choose {
+        when (fixation_r) {
+            cal_target_color = fixation_color
+        }
+        when (saccade_r) {
+            cal_target_color = saccade_color
+        }
+        when (blink_r) {
+            cal_target_color = blink_color
+        }
+        otherwise {
+            cal_target_color = default_color
+        }
+    }
+    cal_target_pos_x = screen_rx
+    cal_target_pos_y = screen_ry
+}
+
+
+protocol 'Free Run' {
+    trackpixx_load_calibration (trackpixx)
+    start_io_device (trackpixx)
+
+    cal_target_color = default_color
+
+    queue_stimulus (move_target_to_gaze_location)
+    live_queue_stimulus (cal_target)
+    update_display ()
+
+    wait (600s)
+}
+
+
+protocol 'Calibration' {
+    task {
+        state 'Begin calibration' {
+            cal_target_color = saccade_color
+            current_cal_point = 0
+
+            trackpixx_begin_calibration (trackpixx)
+            wait (1s)
+
+            goto ('Calibrate next point')
+        }
+
+        state 'Calibrate next point' {
+            cal_target_pos_x = cal_points[current_cal_point][0]
+            cal_target_pos_y = cal_points[current_cal_point][1]
+
+            queue_stimulus (cal_target)
+            update_display ()
+            wait (3s)
+
+            trackpixx_take_calibration_sample (
+                device = trackpixx
+                screen_x = cal_target_pos_x
+                screen_y = cal_target_pos_y
+                left_eye = false
+                right_eye = true
+                )
+
+            clear_display ()
+            wait (1s)
+
+            current_cal_point += 1
+
+            goto (
+                target = 'Calibrate next point'
+                when = current_cal_point < num_cal_points
+                )
+            goto ('End calibration')
+        }
+
+        state 'End calibration' {
+            trackpixx_end_calibration (trackpixx)
+            yield ()
+        }
+    }
+}
+
+
+protocol 'Pupil Size Calibration' {
+    wait (3s)
+    trackpixx_begin_pupil_size_calibration (trackpixx)
+    wait (5s)
+    queue_stimulus (white_bg)
+    update_display ()
+    wait (5s)
+    trackpixx_end_pupil_size_calibration (trackpixx)
+}
