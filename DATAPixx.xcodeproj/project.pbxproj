@@ -112,7 +112,6 @@
 		E105E72A2422A54F00DA4182 /* DATAPixxAnalogOutputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogOutputChannel.hpp; sourceTree = "<group>"; };
 		E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDevice.cpp; sourceTree = "<group>"; };
 		E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDevice.hpp; sourceTree = "<group>"; };
-		E12897FE27D8F9FE009AA016 /* libdpx_i.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libdpx_i.h; sourceTree = "<group>"; };
 		E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogInputChannel.cpp; sourceTree = "<group>"; };
 		E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogInputChannel.hpp; sourceTree = "<group>"; };
 		E160692824353A1200B717EB /* MWComponents.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = MWComponents.yaml; sourceTree = "<group>"; };
@@ -247,7 +246,6 @@
 			isa = PBXGroup;
 			children = (
 				E197C028241036DB00BA6D8D /* Channels */,
-				E12897FE27D8F9FE009AA016 /* libdpx_i.h */,
 				E11AEA912406E3CA00AC3E8B /* DATAPixxDevice.hpp */,
 				E11AEA902406E3CA00AC3E8B /* DATAPixxDevice.cpp */,
 				E1E93D972405AD4F002374D3 /* DATAPixxPlugin.cpp */,
