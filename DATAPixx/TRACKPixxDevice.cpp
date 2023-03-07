@@ -27,6 +27,26 @@ unsigned int lensTypeFromName(const std::string &name) {
 }
 
 
+unsigned char speciesFromName(const std::string &name) {
+    if (name == "human") {
+        return 0;
+    } else if (name == "nhp") {
+        return 1;
+    }
+    throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid TRACKPixx species", name);
+}
+
+
+unsigned char trackingModeFromName(const std::string &name) {
+    if (name == "standard") {
+        return 0;
+    } else if (name == "headfixed_nhp") {
+        return 1;
+    }
+    throw SimpleException(M_IODEVICE_MESSAGE_DOMAIN, "Invalid TRACKPixx tracking mode", name);
+}
+
+
 template<typename IntType>
 bool getPositiveInteger(const Datum &data, const char *description, IntType &val) {
     constexpr IntType maxVal = std::numeric_limits<IntType>::max();
@@ -93,6 +113,8 @@ const std::string TRACKPixxDevice::FIXATION_SPEED("fixation_speed");
 const std::string TRACKPixxDevice::FIXATION_SAMPLES("fixation_samples");
 const std::string TRACKPixxDevice::SACCADE_SPEED("saccade_speed");
 const std::string TRACKPixxDevice::SACCADE_SAMPLES("saccade_samples");
+const std::string TRACKPixxDevice::SPECIES("species");
+const std::string TRACKPixxDevice::TRACKING_MODE("tracking_mode");
 const std::string TRACKPixxDevice::TRACKER_TIME_SECONDS("tracker_time_seconds");
 const std::string TRACKPixxDevice::SCREEN_LX("screen_lx");
 const std::string TRACKPixxDevice::SCREEN_LY("screen_ly");
@@ -127,6 +149,8 @@ void TRACKPixxDevice::describeComponent(ComponentInfo &info) {
     info.addParameter(FIXATION_SAMPLES, "25");
     info.addParameter(SACCADE_SPEED, "60");
     info.addParameter(SACCADE_SAMPLES, "10");
+    info.addParameter(SPECIES, "human");
+    info.addParameter(TRACKING_MODE, "standard");
     info.addParameter(TRACKER_TIME_SECONDS, false);
     info.addParameter(SCREEN_LX, false);
     info.addParameter(SCREEN_LY, false);
@@ -159,6 +183,8 @@ TRACKPixxDevice::TRACKPixxDevice(const ParameterValueMap &parameters) :
     fixationSamples(parameters[FIXATION_SAMPLES]),
     saccadeSpeed(parameters[SACCADE_SPEED]),
     saccadeSamples(parameters[SACCADE_SAMPLES]),
+    species(speciesFromName(parameters[SPECIES].str())),
+    trackingMode(trackingModeFromName(parameters[TRACKING_MODE].str())),
     trackerTimeSeconds(optionalVariable(parameters[TRACKER_TIME_SECONDS])),
     screenLeftX(optionalVariable(parameters[SCREEN_LX])),
     screenLeftY(optionalVariable(parameters[SCREEN_LY])),
@@ -337,6 +363,8 @@ bool TRACKPixxDevice::configureDevice() {
     if ((TPxDisableMedianFilter(), logError("Cannot disable TRACKPixx median filter")) ||
         (TPxDisableHDR(), logError("Cannot disable TRACKPixx high dynamic range mode")) ||
         (TPxSetLens(lensType), logError("Cannot set TRACKPixx lens type")) ||
+        (TPxSpecies(1, species), logError("Cannot set TRACKPixx species")) ||
+        (TPxTrackingMode(1, trackingMode), logError("Cannot set TRACKPixx tracking mode")) ||
         (TPxDisableSearchLimits(), logError("Cannot disable TRACKPixx search limits")))
     {
         return false;

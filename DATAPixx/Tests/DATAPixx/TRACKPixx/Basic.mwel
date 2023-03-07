@@ -37,6 +37,8 @@ trackpixx trackpixx (
     fixation_samples = fixation_samples
     saccade_speed = saccade_speed
     saccade_samples = saccade_samples
+    species = human
+    tracking_mode = standard
     tracker_time_seconds = tracker_time_seconds
     screen_lx = screen_lx
     screen_ly = screen_ly

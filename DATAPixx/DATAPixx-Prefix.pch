@@ -12,26 +12,6 @@
 #include <libdpx.h>
 #include <libtpx.h>
 
-//
-// Ensure that some constants currently missing from libdpx.h
-// (but present in the old libdpx_i.h) are defined
-//
-#ifndef DPXREG_ADC_CHANREF_GND
-#  define DPXREG_ADC_CHANREF_GND      0
-#endif
-#ifndef DPXREG_ADC_CHANREF_DIFF
-#  define DPXREG_ADC_CHANREF_DIFF     1
-#endif
-#ifndef DPXREG_ADC_CHANREF_REF0
-#  define DPXREG_ADC_CHANREF_REF0     2
-#endif
-#ifndef DPXREG_ADC_CHANREF_REF1
-#  define DPXREG_ADC_CHANREF_REF1     3
-#endif
-#ifndef DPXREG_SCHED_CTRL_RATE_NANO
-#  define DPXREG_SCHED_CTRL_RATE_NANO 0x00000020
-#endif
-
 #ifdef __cplusplus
 
 #include <cinttypes>

@@ -28,6 +28,8 @@ public:
     static const std::string FIXATION_SAMPLES;
     static const std::string SACCADE_SPEED;
     static const std::string SACCADE_SAMPLES;
+    static const std::string SPECIES;
+    static const std::string TRACKING_MODE;
     static const std::string TRACKER_TIME_SECONDS;
     static const std::string SCREEN_LX;
     static const std::string SCREEN_LY;
@@ -119,6 +121,8 @@ private:
     const VariablePtr fixationSamples;
     const VariablePtr saccadeSpeed;
     const VariablePtr saccadeSamples;
+    const unsigned char species;
+    const unsigned char trackingMode;
     const VariablePtr trackerTimeSeconds;
     const VariablePtr screenLeftX;
     const VariablePtr screenLeftY;
