@@ -163,7 +163,7 @@ protocol 'Calibration' {
                 device = trackpixx
                 screen_x = cal_target_pos_x
                 screen_y = cal_target_pos_y
-                left_eye = false
+                left_eye = true
                 right_eye = true
                 )
 

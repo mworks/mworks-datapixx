@@ -301,8 +301,167 @@ parameters:
 name: TRACKPixx Device
 signature: iodevice/trackpixx
 isa: DATAPixx Device
-description: >
-    Interface to a `TRACKPixx3 <https://vpixx.com/products/trackpixx/>`_ device
+description: |
+    Interface to a `TRACKPixx3 <https://vpixx.com/products/trackpixx/>`_
+    device.
+
+    This component also exposes the functions of the `DATAPixx3
+    <https://vpixx.com/products/datapixx3/>`_ device to which the TRACKPixx is
+    connected.  To use both the TRACKPixx and DATAPixx in an experiment, create
+    a single TRACKPixx Device.  To use the DATAPixx without the TRACKPixx,
+    create a `DATAPixx Device` instead.
+parameters: 
+  - 
+    name: show_overlay
+    default: 'NO'
+    description: >
+        If ``YES``, the console monitor (i.e. the display connected to DATAPixx3
+        DisplayPort OUT2) will show the camera image and pupil center tracking
+        positions in an overlay window
+  - 
+    name: distance
+    required: yes
+    example: 100
+    description: >
+        Distance from subject's eyes to camera lens (in centimeters)
+  - 
+    name: lens_type
+    required: yes
+    options: [25mm, 50mm, 75mm]
+    description: Camera lens type
+  - 
+    name: tracker_window_brightness
+    default: 200
+    description: >
+        Brightness of the overlay window enabled by `show_overlay`_. Must be an
+        integer between 0 and 255 (inclusive).
+  - 
+    name: ir_illuminator_intensity
+    default: 8
+    description: >
+        Intensity of the infrared illuminator. Must be an integer between 0 and
+        8 (inclusive).
+  - 
+    name: iris_expected_size
+    required: yes
+    example: 100
+    description: >
+        Expected size of the subject's iris in the camera image (in pixels)
+  - 
+    name: fixation_speed
+    default: 20
+    description: >
+        Eye velocity threshold below which to classify fixations (in eye
+        position units per second)
+  - 
+    name: fixation_samples
+    default: 25
+    description: >
+        Minimum number of consecutive samples required to classify a fixation
+        event
+  - 
+    name: saccade_speed
+    default: 60
+    description: >
+        Eye velocity threshold above which to classify saccades (in eye position
+        units per second)
+  - 
+    name: saccade_samples
+    default: 10
+    description: >
+        Minimum number of consecutive samples required to classify a saccade
+        event
+  - 
+    name: species
+    options: [human, nhp]
+    default: human
+    description: Subject species
+  - 
+    name: tracking_mode
+    options: [standard, headfixed_nhp]
+    default: standard
+    description: Tracking mode
+  - 
+    name: tracker_time_seconds
+    description: >
+        Variable in which to store time of sample (in seconds) on TRACKPixx
+        clock
+  - 
+    name: screen_lx
+    description: >
+        Variable in which to store Cartesian screen coordinate for x component
+        of left eye
+  - 
+    name: screen_ly
+    description: >
+        Variable in which to store Cartesian screen coordinate for y component
+        of left eye
+  - 
+    name: pupil_size_l
+    description: Variable in which to store diameter of left eye pupil
+  - 
+    name: screen_rx
+    description: >
+        Variable in which to store Cartesian screen coordinate for x component
+        of right eye
+  - 
+    name: screen_ry
+    description: >
+        Variable in which to store Cartesian screen coordinate for y component
+        of right eye
+  - 
+    name: pupil_size_r
+    description: Variable in which to store diameter of right eye pupil
+  - 
+    name: blink_l
+    description: >
+        Variable in which to store left eye blink state (true when blinking,
+        false otherwise)
+  - 
+    name: blink_r
+    description: >
+        Variable in which to store right eye blink state (true when blinking,
+        false otherwise)
+  - 
+    name: fixation_l
+    description: >
+        Variable in which to store left eye fixation state (true when fixating,
+        false otherwise)
+  - 
+    name: fixation_r
+    description: >
+        Variable in which to store right eye fixation state (true when fixating,
+        false otherwise)
+  - 
+    name: saccade_l
+    description: >
+        Variable in which to store left eye saccade state (true when in
+        saccade, false otherwise)
+  - 
+    name: saccade_r
+    description: >
+        Variable in which to store right eye saccade state (true when in
+        saccade, false otherwise)
+  - 
+    name: raw_lx
+    description: >
+        Variable in which to store pupil-to-corneal reflection vector x
+        component for left eye
+  - 
+    name: raw_ly
+    description: >
+        Variable in which to store pupil-to-corneal reflection vector y
+        component for left eye
+  - 
+    name: raw_rx
+    description: >
+        Variable in which to store pupil-to-corneal reflection vector x
+        component for right eye
+  - 
+    name: raw_ry
+    description: >
+        Variable in which to store pupil-to-corneal reflection vector y
+        component for right eye
 
 
 ---
@@ -326,7 +485,7 @@ name: TRACKPixx Begin Calibration
 signature: action/trackpixx_begin_calibration
 isa: TRACKPixx Action
 description: >
-    Begin calibration of a `TRACKPixx Device`.
+    Begin calibration on a `TRACKPixx Device`
 
 
 ---
@@ -336,7 +495,24 @@ name: TRACKPixx Take Calibration Sample
 signature: action/trackpixx_take_calibration_sample
 isa: TRACKPixx Action
 description: >
-    Take a calibration sample on a `TRACKPixx Device`.
+    Take a calibration sample on a `TRACKPixx Device`
+parameters: 
+  - 
+    name: screen_x
+    required: yes
+    description: x coordinate of the fixation target (in degrees)
+  - 
+    name: screen_y
+    required: yes
+    description: y coordinate of the fixation target (in degrees)
+  - 
+    name: left_eye
+    default: 'YES'
+    description: Enable data verification for left eye
+  - 
+    name: right_eye
+    default: 'YES'
+    description: Enable data verification for right eye
 
 
 ---
@@ -346,7 +522,7 @@ name: TRACKPixx End Calibration
 signature: action/trackpixx_end_calibration
 isa: TRACKPixx Action
 description: >
-    End calibration of a `TRACKPixx Device`.
+    End calibration on a `TRACKPixx Device`
 
 
 ---
@@ -356,7 +532,7 @@ name: TRACKPixx Load Calibration
 signature: action/trackpixx_load_calibration
 isa: TRACKPixx Action
 description: >
-    Load the calibration saved to a `TRACKPixx Device`.
+    Load the calibration saved to a `TRACKPixx Device`
 
 
 ---
@@ -366,7 +542,7 @@ name: TRACKPixx Begin Pupil Size Calibration
 signature: action/trackpixx_begin_pupil_size_calibration
 isa: TRACKPixx Action
 description: >
-    Begin pupil size calibration on a `TRACKPixx Device`.
+    Begin pupil size calibration on a `TRACKPixx Device`
 
 
 ---
@@ -376,7 +552,7 @@ name: TRACKPixx End Pupil Size Calibration
 signature: action/trackpixx_end_pupil_size_calibration
 isa: TRACKPixx Action
 description: >
-    End pupil size calibration on a `TRACKPixx Device`.
+    End pupil size calibration on a `TRACKPixx Device`
 
 
 ---
@@ -386,6 +562,6 @@ name: TRACKPixx Load Pupil Size Calibration
 signature: action/trackpixx_load_pupil_size_calibration
 isa: TRACKPixx Action
 description: >
-    Load the pupil size calibration saved to a `TRACKPixx Device`.
+    Load the pupil size calibration saved to a `TRACKPixx Device`
 
 
