@@ -117,7 +117,7 @@
 		E15447C0242505C0007CA55C /* DATAPixxAnalogInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxAnalogInputChannel.cpp; sourceTree = "<group>"; };
 		E15447C1242505C0007CA55C /* DATAPixxAnalogInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxAnalogInputChannel.hpp; sourceTree = "<group>"; };
 		E160692824353A1200B717EB /* MWComponents.yaml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = MWComponents.yaml; sourceTree = "<group>"; };
-		E16CF6A72657F4E000A2F2D4 /* libdpx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdpx.dylib; path = "/Library/Application Support/VPixx Technologies/Software Tools/libdpx/libdpx/lib/libdpx.dylib"; sourceTree = "<absolute>"; };
+		E16CF6A72657F4E000A2F2D4 /* libdpx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libdpx.dylib; path = "/Library/Application Support/VPixx Technologies/Software Tools/libdpx/lib/libdpx.dylib"; sourceTree = "<absolute>"; };
 		E171499A241166FD0071C8FA /* DATAPixxDigitalInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxDigitalInputChannel.cpp; sourceTree = "<group>"; };
 		E171499B241166FD0071C8FA /* DATAPixxDigitalInputChannel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DATAPixxDigitalInputChannel.hpp; sourceTree = "<group>"; };
 		E171499D241167EF0071C8FA /* DATAPixxBitInputChannel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DATAPixxBitInputChannel.cpp; sourceTree = "<group>"; };
@@ -438,16 +438,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E1E93D682405A561002374D3 /* macOS_Plugin.xcconfig */;
 			buildSettings = {
-				ARCHS = x86_64;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "DATAPixx/DATAPixx-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"$(LOCAL_LIBRARY_DIR)/Application\\ Support/VPixx\\ Technologies/Software\\ Tools/libdpx/libdpx/include",
+					"$(LOCAL_LIBRARY_DIR)/Application\\ Support/VPixx\\ Technologies/Software\\ Tools/libdpx/include",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = DATAPixx/Info.plist;
 				LIBRARY_SEARCH_PATHS = (
-					"$(LOCAL_LIBRARY_DIR)/Application\\ Support/VPixx\\ Technologies/Software\\ Tools/libdpx/libdpx/lib",
+					"$(LOCAL_LIBRARY_DIR)/Application\\ Support/VPixx\\ Technologies/Software\\ Tools/libdpx/lib",
 					"$(inherited)",
 				);
 				OTHER_LDFLAGS = (
